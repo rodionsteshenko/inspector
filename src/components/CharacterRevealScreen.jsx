@@ -132,7 +132,7 @@ export default function CharacterRevealScreen({ gameState, onBeginDay }) {
       {day0Murder && day0Murder.witnesses?.length > 0 && (
         <div className="w-full max-w-lg mt-4 px-4 py-2 rounded border border-slate-800 bg-slate-900 text-center">
           <span className="text-slate-500 text-xs">
-            {day0Murder.witnesses[0].name} was nearby when it happened. They may have seen something.
+            {day0Murder.witnesses[0].name} was seen near the victim last night. They may know something.
           </span>
         </div>
       )}
