@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { getNodeById, MAP_NODES } from '../engine/map.js';
+import CharacterDossier from './CharacterDossier.jsx';
 
 const ROLE_COLORS = {
   mafia:      'text-red-400',
@@ -15,6 +17,7 @@ function RoleBadge({ role }) {
 }
 
 export default function EvidenceBoard({ gameState }) {
+  const [selectedCharId, setSelectedCharId] = useState(null);
   const { evidenceBoard, characters, mapConfig } = gameState;
   const nodes = mapConfig?.nodes || MAP_NODES;
   const { confirmedRoles, movementLogs, contradictions, deathLog, alliances } = evidenceBoard;
@@ -39,6 +42,20 @@ export default function EvidenceBoard({ gameState }) {
     conversationLogs.length > 0 || claimedFacts.length > 0 || proximityFlags.length > 0 ||
     allyObservations.length > 0;
 
+  // Show dossier if a character is selected
+  if (selectedCharId) {
+    const char = characters.find(c => c.id === selectedCharId);
+    if (char) {
+      return (
+        <CharacterDossier
+          character={char}
+          gameState={gameState}
+          onClose={() => setSelectedCharId(null)}
+        />
+      );
+    }
+  }
+
   return (
     <div data-testid="evidence-board" className="flex flex-col h-full bg-slate-900 border-l border-slate-700 overflow-hidden">
       <div className="px-4 py-3 border-b border-slate-700 flex-shrink-0">
@@ -56,14 +73,18 @@ export default function EvidenceBoard({ gameState }) {
               const knownRole = confirmedRoles[c.id];
               const isAllied = alliances.some(a => a.characterId === c.id);
               return (
-                <li key={c.id} className={`flex items-center justify-between ${c.alive ? 'text-slate-300' : 'text-slate-600 line-through'}`}>
+                <li key={c.id}
+                  className={`flex items-center justify-between cursor-pointer rounded px-1 py-0.5 hover:bg-slate-800 transition-colors ${c.alive ? 'text-slate-300' : 'text-slate-600'}`}
+                  onClick={() => setSelectedCharId(c.id)}
+                  title="View dossier"
+                >
                   <span className="flex items-center gap-1.5">
                     <span className={`inline-block w-1.5 h-1.5 rounded-full ${c.alive ? 'bg-green-500' : 'bg-slate-600'}`} />
-                    {c.name}
+                    <span className={c.alive ? '' : 'line-through'}>{c.name}</span>
                     {isAllied && <span className="text-purple-400 text-xs ml-1" title="Allied">★</span>}
                   </span>
                   {knownRole ? <RoleBadge role={knownRole} /> : (
-                    c.alive ? <span className="text-slate-600">?</span> : (
+                    c.alive ? <span className="text-slate-600">›</span> : (
                       deathLog.find(d => d.characterId === c.id)?.revealedRole
                         ? <RoleBadge role={deathLog.find(d => d.characterId === c.id).revealedRole} />
                         : <span className="text-slate-700">dead</span>
