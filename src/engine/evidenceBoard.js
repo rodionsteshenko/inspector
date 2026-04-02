@@ -127,32 +127,55 @@ export function getContradictionsForCharacter(board, characterId) {
 
 /**
  * Auto-flag contradictions by comparing claimedFacts (location_claim type)
- * against movementLogs (player observations).
- * Adds contradiction entries where a character's claim differs from observed location.
+ * against movementLogs (player observations) AND npcObservations (from conversations).
+ * Also cross-references NPC claims against other NPC observations.
  */
 export function runContradictionCheck(board) {
   const claimedFacts = board.claimedFacts || [];
+  const npcObservations = board.npcObservations || [];
   let updatedBoard = board;
 
   for (const fact of claimedFacts) {
     if (fact.type !== 'location_claim') continue;
-    const { characterId, location: claimedLocation, day, chunk } = fact;
+    const { characterId, characterName, location: claimedLocation, day, chunk } = fact;
     if (!characterId || !claimedLocation || !day || !chunk) continue;
 
+    // Check against player's direct observations
     const observed = board.movementLogs.find(
       log => log.characterId === characterId && log.day === day && log.chunk === chunk
     );
-    if (!observed) continue;
-
-    if (observed.location !== claimedLocation) {
+    if (observed && observed.location !== claimedLocation) {
       const contradiction = {
         characterId,
+        characterName: characterName || characterId,
         claimedLocation,
         observedLocation: observed.location,
+        source: 'player_observation',
         day,
         chunk,
         type: 'direct_contradiction',
-        description: `${characterId} claimed to be at ${claimedLocation} but was observed at ${observed.location} on Day ${day}, Chunk ${chunk}`,
+        description: `${characterName || characterId} claimed to be at ${claimedLocation} but you saw them at ${observed.location} (Day ${day}, Chunk ${chunk})`,
+      };
+      updatedBoard = addContradiction(updatedBoard, contradiction);
+    }
+
+    // Check against other NPCs' testimony observations
+    for (const obs of npcObservations) {
+      if (obs.subjectId !== characterId) continue;
+      if (obs.day !== day || obs.chunk !== chunk) continue;
+      if (obs.location === claimedLocation) continue;
+      const contradiction = {
+        characterId,
+        characterName: characterName || characterId,
+        claimedLocation,
+        observedLocation: obs.location,
+        witnessId: obs.witnessId,
+        witnessName: obs.witnessName,
+        source: 'npc_testimony',
+        day,
+        chunk,
+        type: 'testimony_contradiction',
+        description: `${characterName || characterId} claimed to be at ${claimedLocation}, but ${obs.witnessName} saw them at ${obs.location} (Day ${day}, Chunk ${chunk})`,
       };
       updatedBoard = addContradiction(updatedBoard, contradiction);
     }

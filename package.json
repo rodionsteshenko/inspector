@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "cli": "node cli/mafia-cli.js"
   },
   "dependencies": {
     "openai": "^6.33.0",

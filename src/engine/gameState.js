@@ -2,9 +2,12 @@
 
 import { ROLES, assignRoles, assignRolesFromPool, PLAYER_COUNT_CONFIGS, shuffle } from './roles.js';
 import { NPC_DEFINITIONS, PLAYER_CHARACTER, createCharacter, createPlayer, getNPCIds } from './characters.js';
-import { MAP_NODES } from './map.js';
+import { MAP_NODES, buildAdjacencyMap } from './map.js';
+import { MAP_LAYOUTS, DEFAULT_MAP_LAYOUT } from './mapDefinitions.js';
 import { createDayMafiaState, planMafiaDay } from './poisoning.js';
 import { generateAllTestimony } from './testimony.js';
+import { runDay0Murder } from './day0.js';
+import { observeNPCCoPresence } from './movement.js';
 
 export const PHASES = {
   SETUP: 'setup',
@@ -87,13 +90,30 @@ export function createInitialGameState(rng = Math.random) {
   };
 }
 
+// Build a role pool from explicit counts, filling remainder with citizens.
+function buildRolePool(npcCount, roleCounts) {
+  const pool = [];
+  for (let i = 0; i < (roleCounts.mafia || 2); i++) pool.push(ROLES.MAFIA);
+  for (let i = 0; i < (roleCounts.doctor || 0); i++) pool.push(ROLES.DOCTOR);
+  for (let i = 0; i < (roleCounts.journalist || 0); i++) pool.push(ROLES.JOURNALIST);
+  for (let i = 0; i < (roleCounts.mason || 0); i++) pool.push(ROLES.MASON);
+  const citizens = npcCount - pool.length;
+  for (let i = 0; i < citizens; i++) pool.push(ROLES.CITIZEN);
+  return pool;
+}
+
 // Create game state with configurable player count and role set
 export function createGameWithSetup(config = {}, rng = Math.random) {
   const playerCount = config.playerCount || 8;
-  const maxDays = config.maxDays || MAX_DAYS;
   const conversationsPerDay = config.conversationsPerDay || BASE_CONVERSATIONS_PER_DAY;
+  const chunksPerDay = config.chunksPerDay || CHUNKS_PER_DAY;
   const playerConfig = PLAYER_COUNT_CONFIGS[playerCount] || PLAYER_COUNT_CONFIGS[8];
-  const { npcCount, rolePool } = playerConfig;
+  const { npcCount } = playerConfig;
+
+  // Use custom role counts if provided, otherwise fall back to preset
+  const rolePool = config.roleCounts
+    ? buildRolePool(npcCount, config.roleCounts)
+    : playerConfig.rolePool;
 
   // Pick npcCount NPCs from NPC_DEFINITIONS (shuffled)
   const allDefs = shuffle([...NPC_DEFINITIONS], rng);
@@ -102,12 +122,19 @@ export function createGameWithSetup(config = {}, rng = Math.random) {
 
   const roleAssignments = assignRolesFromPool(selectedIds, rolePool, rng);
 
-  // Assign starting locations randomly
+  // Build map config from selected layout
+  const layout = MAP_LAYOUTS[config.mapLayout || DEFAULT_MAP_LAYOUT];
+  const mapConfig = {
+    ...layout,
+    adjacencyMap: buildAdjacencyMap(layout.nodes, layout.edges),
+  };
+
+  // Assign starting locations randomly across the selected map
   const allIds = [PLAYER_CHARACTER.id, ...selectedIds];
   const locationAssignments = {};
   for (const id of allIds) {
-    const nodeIdx = Math.floor(rng() * MAP_NODES.length);
-    locationAssignments[id] = MAP_NODES[nodeIdx].id;
+    const nodeIdx = Math.floor(rng() * mapConfig.nodes.length);
+    locationAssignments[id] = mapConfig.nodes[nodeIdx].id;
   }
 
   const player = createPlayer(locationAssignments[PLAYER_CHARACTER.id]);
@@ -126,6 +153,7 @@ export function createGameWithSetup(config = {}, rng = Math.random) {
     day: 1,
     chunk: 1,
     phase: PHASES.DAY,
+    mapConfig,
     playerLocation: locationAssignments[PLAYER_CHARACTER.id],
     characters: [player, ...npcs],
     evidenceBoard: {
@@ -141,6 +169,7 @@ export function createGameWithSetup(config = {}, rng = Math.random) {
     conversationsUsed: 0,
     conversationsAvailable: conversationsPerDay,
     conversationsPerDay,
+    chunksPerDay,
     nightActions: {
       mafiaTarget: null,
       doctorTarget: null,
@@ -151,11 +180,10 @@ export function createGameWithSetup(config = {}, rng = Math.random) {
     masonKnownInnocent,
     mafiaIds,
     mafiaKnowsInspector: false,
-    maxDays,
     gameOver: false,
     winner: null,
     eliminatedThisVote: null,
-    setupConfig: { playerCount, maxDays, conversationsPerDay },
+    setupConfig: { playerCount, conversationsPerDay, chunksPerDay },
   };
 
   // Plan day 1 mafia activity
@@ -163,18 +191,25 @@ export function createGameWithSetup(config = {}, rng = Math.random) {
   const plannedState = { ...initialState, mafiaState: planMafiaDay(initialState, rng) };
 
   // Generate day 1 testimony for all NPCs
-  return generateAllTestimony(plannedState, 1, rng);
+  const withTestimony = generateAllTestimony(plannedState, 1, rng);
+
+  // Run the off-screen Day 0 murder — someone died before you arrived
+  const withMurder = runDay0Murder(withTestimony, rng);
+
+  // Seed initial NPC co-presence observations (Day 1, chunk 1 — everyone at their starting locations)
+  return observeNPCCoPresence(withMurder);
 }
 
 export function advanceChunk(state) {
   if (state.phase !== PHASES.DAY) {
     throw new Error('Can only advance chunk during day phase');
   }
+  const chunksPerDay = state.chunksPerDay || CHUNKS_PER_DAY;
   const nextChunk = state.chunk + 1;
-  if (nextChunk > CHUNKS_PER_DAY) {
+  if (nextChunk > chunksPerDay) {
     return {
       ...state,
-      chunk: CHUNKS_PER_DAY,
+      chunk: chunksPerDay,
       phase: PHASES.NIGHT,
       nightActions: { mafiaTarget: null, doctorTarget: null, inspectorTarget: null, playerEliminate: null },
     };
@@ -232,8 +267,11 @@ export function transitionToDay(state, rng = Math.random) {
     dayState = { ...withFreshMafiaState, mafiaState: planMafiaDay(withFreshMafiaState) };
   }
 
-  // Generate testimony for new day
-  return generateAllTestimony(dayState, nextDay, rng);
+  // Generate testimony for new day (uses accumulated knowledge/suspicions)
+  const withTestimony = generateAllTestimony(dayState, nextDay, rng);
+
+  // Seed chunk-1 co-presence so NPCs start the day with fresh observations
+  return observeNPCCoPresence(withTestimony);
 }
 
 export function getConversationsAvailable(state) {

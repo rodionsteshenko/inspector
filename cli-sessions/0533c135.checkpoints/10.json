@@ -1,0 +1,1497 @@
+{
+  "day": 2,
+  "chunk": 1,
+  "phase": "day",
+  "mapConfig": {
+    "id": "medium",
+    "name": "Village",
+    "description": "5 locations — balanced",
+    "nodes": [
+      {
+        "id": "church",
+        "name": "Church",
+        "capacity": 4,
+        "visibility": "public",
+        "description": "A quiet place for prayer and reflection."
+      },
+      {
+        "id": "docks",
+        "name": "Docks",
+        "capacity": 4,
+        "visibility": "public",
+        "description": "Where fishermen and traders gather."
+      },
+      {
+        "id": "town_square",
+        "name": "Town Square",
+        "capacity": 6,
+        "visibility": "public",
+        "description": "The busy center of village life."
+      },
+      {
+        "id": "market",
+        "name": "Market",
+        "capacity": 5,
+        "visibility": "public",
+        "description": "Bustling stalls and trading."
+      },
+      {
+        "id": "tavern",
+        "name": "Tavern",
+        "capacity": 4,
+        "visibility": "public",
+        "description": "Where gossip flows like ale."
+      }
+    ],
+    "edges": [
+      [
+        "church",
+        "docks"
+      ],
+      [
+        "church",
+        "town_square"
+      ],
+      [
+        "docks",
+        "market"
+      ],
+      [
+        "docks",
+        "town_square"
+      ],
+      [
+        "market",
+        "tavern"
+      ],
+      [
+        "tavern",
+        "town_square"
+      ]
+    ],
+    "nodePositions": {
+      "church": {
+        "x": 150,
+        "y": 80
+      },
+      "docks": {
+        "x": 450,
+        "y": 80
+      },
+      "town_square": {
+        "x": 300,
+        "y": 210
+      },
+      "market": {
+        "x": 450,
+        "y": 340
+      },
+      "tavern": {
+        "x": 150,
+        "y": 340
+      }
+    },
+    "svgViewBox": "0 0 600 440",
+    "adjacencyMap": {
+      "church": [
+        "docks",
+        "town_square"
+      ],
+      "docks": [
+        "church",
+        "market",
+        "town_square"
+      ],
+      "town_square": [
+        "church",
+        "docks",
+        "tavern"
+      ],
+      "market": [
+        "docks",
+        "tavern"
+      ],
+      "tavern": [
+        "market",
+        "town_square"
+      ]
+    }
+  },
+  "playerLocation": "tavern",
+  "characters": [
+    {
+      "id": "player",
+      "name": "The Inspector",
+      "personality": "methodical investigator",
+      "isPlayer": true,
+      "role": "inspector",
+      "location": "tavern",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "market"
+        },
+        {
+          "day": 1,
+          "chunk": 1,
+          "location": "tavern"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false
+    },
+    {
+      "id": "piotr_miller",
+      "name": "Piotr the Miller",
+      "personality": "conflict-averse, smooths things over, hates accusation",
+      "isPlayer": false,
+      "role": "mason",
+      "location": "tavern",
+      "alive": false,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "tavern"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "tavern",
+            "actualLocation": "tavern",
+            "isLie": false
+          }
+        ],
+        "observations": [],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "lev_dockworker",
+      "name": "Lev the Dockworker",
+      "personality": "quiet, says little, sees more than people think",
+      "isPlayer": false,
+      "role": "mafia",
+      "location": "town_square",
+      "alive": false,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "tavern"
+        },
+        {
+          "day": 1,
+          "chunk": 1,
+          "location": "town_square"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": true,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "alley",
+            "actualLocation": "tavern",
+            "isLie": true
+          },
+          {
+            "day": 1,
+            "chunk": 1,
+            "claimedLocation": "market",
+            "actualLocation": "town_square",
+            "isLie": true
+          }
+        ],
+        "observations": [
+          {
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          }
+        ],
+        "suspicions": [
+          {
+            "targetId": "old_tomas",
+            "targetName": "Old Tomas",
+            "reason": "was acting strange yesterday"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dasha_healer",
+      "name": "Dasha the Healer",
+      "personality": "protective, deflects questions, focuses on others' safety",
+      "isPlayer": false,
+      "role": "doctor",
+      "location": "church",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "town_square"
+        },
+        {
+          "day": 1,
+          "chunk": 1,
+          "location": "tavern"
+        },
+        {
+          "day": 1,
+          "chunk": 3,
+          "location": "market"
+        },
+        {
+          "day": 1,
+          "chunk": 4,
+          "location": "docks"
+        },
+        {
+          "day": 1,
+          "chunk": 5,
+          "location": "town_square"
+        },
+        {
+          "day": 1,
+          "chunk": 7,
+          "location": "church"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "tavern",
+            "day": 0,
+            "chunk": 8
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "tavern",
+            "day": 0,
+            "chunk": 7
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "market",
+            "day": 1,
+            "chunk": 3
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "church",
+            "day": 1,
+            "chunk": 7
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "town_square",
+            "actualLocation": "town_square",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 1,
+            "claimedLocation": "tavern",
+            "actualLocation": "tavern",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 3,
+            "claimedLocation": "market",
+            "actualLocation": "market",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 4,
+            "claimedLocation": "docks",
+            "actualLocation": "docks",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 5,
+            "claimedLocation": "town_square",
+            "actualLocation": "town_square",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 7,
+            "claimedLocation": "church",
+            "actualLocation": "church",
+            "isLie": false
+          }
+        ],
+        "observations": [
+          {
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "tavern",
+            "day": 0,
+            "chunk": 8,
+            "isTrue": true
+          },
+          {
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "tavern",
+            "day": 0,
+            "chunk": 7,
+            "isTrue": true
+          },
+          {
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "market",
+            "day": 1,
+            "chunk": 3,
+            "isTrue": true
+          },
+          {
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "church",
+            "day": 1,
+            "chunk": 7,
+            "isTrue": true
+          }
+        ],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "anya_seamstress",
+      "name": "Anya the Seamstress",
+      "personality": "gossipy, shares too much, hard to know what's true",
+      "isPlayer": false,
+      "role": "citizen",
+      "location": "church",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "market"
+        },
+        {
+          "day": 1,
+          "chunk": 1,
+          "location": "tavern"
+        },
+        {
+          "day": 1,
+          "chunk": 6,
+          "location": "town_square"
+        },
+        {
+          "day": 1,
+          "chunk": 7,
+          "location": "church"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "tavern",
+            "day": 0,
+            "chunk": 8
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "church",
+            "day": 1,
+            "chunk": 7
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "market",
+            "actualLocation": "market",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 1,
+            "claimedLocation": "tavern",
+            "actualLocation": "tavern",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 6,
+            "claimedLocation": "town_square",
+            "actualLocation": "town_square",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 7,
+            "claimedLocation": "church",
+            "actualLocation": "church",
+            "isLie": false
+          }
+        ],
+        "observations": [
+          {
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "tavern",
+            "day": 0,
+            "chunk": 8,
+            "isTrue": true
+          },
+          {
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "old_tomas",
+            "subjectName": "Old Tomas",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          },
+          {
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          },
+          {
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "church",
+            "day": 1,
+            "chunk": 7,
+            "isTrue": true
+          }
+        ],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "old_tomas",
+      "name": "Old Tomas",
+      "personality": "paranoid, jumps to conclusions, rarely wrong",
+      "isPlayer": false,
+      "role": "journalist",
+      "location": "tavern",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "tavern"
+        },
+        {
+          "day": 1,
+          "chunk": 1,
+          "location": "market"
+        },
+        {
+          "day": 1,
+          "chunk": 5,
+          "location": "tavern"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "market",
+            "day": 1,
+            "chunk": 3
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "tavern",
+            "actualLocation": "tavern",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 1,
+            "claimedLocation": "market",
+            "actualLocation": "market",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 5,
+            "claimedLocation": "tavern",
+            "actualLocation": "tavern",
+            "isLie": false
+          }
+        ],
+        "observations": [
+          {
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "market",
+            "day": 1,
+            "chunk": 3,
+            "isTrue": true
+          },
+          {
+            "subjectId": "player",
+            "subjectName": "The Inspector",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "tavern",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          }
+        ],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "brad_barber",
+      "name": "Brad the Barber",
+      "personality": "chatty, knows everyone's business, talks too much",
+      "isPlayer": false,
+      "role": "mafia",
+      "location": "town_square",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "docks"
+        },
+        {
+          "day": 1,
+          "chunk": 1,
+          "location": "town_square"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "docks",
+            "actualLocation": "docks",
+            "isLie": false
+          },
+          {
+            "day": 1,
+            "chunk": 1,
+            "claimedLocation": "market",
+            "actualLocation": "town_square",
+            "isLie": true
+          }
+        ],
+        "observations": [
+          {
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "viktor_farmer",
+            "subjectName": "Viktor the Farmer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          }
+        ],
+        "suspicions": [
+          {
+            "targetId": "dasha_healer",
+            "targetName": "Dasha the Healer",
+            "reason": "kept looking over their shoulder"
+          }
+        ]
+      }
+    },
+    {
+      "id": "viktor_farmer",
+      "name": "Viktor the Farmer",
+      "personality": "blunt, says exactly what he thinks, sometimes wrong",
+      "isPlayer": false,
+      "role": "citizen",
+      "location": "town_square",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "town_square"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "town_square",
+            "actualLocation": "town_square",
+            "isLie": false
+          }
+        ],
+        "observations": [
+          {
+            "subjectId": "lev_dockworker",
+            "subjectName": "Lev the Dockworker",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "brad_barber",
+            "subjectName": "Brad the Barber",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 1,
+            "isTrue": true
+          },
+          {
+            "subjectId": "dasha_healer",
+            "subjectName": "Dasha the Healer",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 5,
+            "isTrue": true
+          },
+          {
+            "subjectId": "anya_seamstress",
+            "subjectName": "Anya the Seamstress",
+            "location": "town_square",
+            "day": 1,
+            "chunk": 6,
+            "isTrue": true
+          }
+        ],
+        "suspicions": []
+      }
+    }
+  ],
+  "evidenceBoard": {
+    "confirmedRoles": {
+      "lev_dockworker": "mafia"
+    },
+    "movementLogs": [
+      {
+        "characterId": "dasha_healer",
+        "location": "tavern",
+        "day": 0,
+        "chunk": 8,
+        "observedBy": "witness",
+        "timestamp": "Day 0, Chunk 8 (before your arrival)"
+      },
+      {
+        "characterId": "anya_seamstress",
+        "location": "tavern",
+        "day": 0,
+        "chunk": 8,
+        "observedBy": "witness",
+        "timestamp": "Day 0, Chunk 8 (before your arrival)"
+      },
+      {
+        "characterId": "anya_seamstress",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 4,
+        "observedBy": "player",
+        "timestamp": "Day 1, Chunk 4"
+      },
+      {
+        "characterId": "anya_seamstress",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 5,
+        "observedBy": "player",
+        "timestamp": "Day 1, Chunk 5"
+      },
+      {
+        "characterId": "anya_seamstress",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 6,
+        "observedBy": "player",
+        "timestamp": "Day 1, Chunk 6"
+      },
+      {
+        "characterId": "old_tomas",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 6,
+        "observedBy": "player",
+        "timestamp": "Day 1, Chunk 6"
+      },
+      {
+        "characterId": "old_tomas",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 7,
+        "observedBy": "player",
+        "timestamp": "Day 1, Chunk 7"
+      },
+      {
+        "characterId": "old_tomas",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 8,
+        "observedBy": "player",
+        "timestamp": "Day 1, Chunk 8"
+      }
+    ],
+    "contradictions": [],
+    "deathLog": [
+      {
+        "characterId": "piotr_miller",
+        "characterName": "Piotr the Miller",
+        "day": 0,
+        "location": "tavern",
+        "cause": "mafia_kill"
+      },
+      {
+        "characterId": "lev_dockworker",
+        "characterName": "Lev the Dockworker",
+        "day": 1,
+        "location": "town_square",
+        "cause": "player_eliminate",
+        "revealedRole": "mafia"
+      }
+    ],
+    "alliances": [],
+    "allyObservations": [],
+    "conversationLogs": [
+      {
+        "characterId": "dasha_healer",
+        "characterName": "Dasha the Healer",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 2,
+        "response": "I was at the town square earlier."
+      },
+      {
+        "characterId": "anya_seamstress",
+        "characterName": "Anya the Seamstress",
+        "location": "tavern",
+        "day": 1,
+        "chunk": 3,
+        "response": "I was at the market earlier."
+      }
+    ],
+    "claimedFacts": [
+      {
+        "type": "location_claim",
+        "characterId": "dasha_healer",
+        "characterName": "Dasha the Healer",
+        "location": "town_square",
+        "day": 1,
+        "chunk": 0,
+        "verified": false
+      },
+      {
+        "type": "location_claim",
+        "characterId": "anya_seamstress",
+        "characterName": "Anya the Seamstress",
+        "location": "market",
+        "day": 1,
+        "chunk": 0,
+        "verified": false
+      }
+    ]
+  },
+  "investigationsUsed": 0,
+  "investigationsAvailable": 1,
+  "conversationsUsed": 0,
+  "conversationsAvailable": 3,
+  "conversationsPerDay": 3,
+  "chunksPerDay": 8,
+  "nightActions": {
+    "mafiaTarget": null,
+    "doctorTarget": "old_tomas",
+    "inspectorTarget": "lev_dockworker",
+    "playerEliminate": "lev_dockworker"
+  },
+  "lastNightResult": {
+    "killResult": {
+      "type": "no_kill",
+      "victim": null,
+      "saved": false
+    },
+    "investigationResult": {
+      "targetId": "lev_dockworker",
+      "targetName": "Lev the Dockworker",
+      "role": "mafia",
+      "team": "mafia",
+      "isInnocent": false,
+      "isMafia": true
+    },
+    "eliminateResult": {
+      "targetId": "lev_dockworker",
+      "targetName": "Lev the Dockworker",
+      "role": "mafia"
+    },
+    "day": 1
+  },
+  "masonKnownInnocent": "dasha_healer",
+  "mafiaIds": [
+    "lev_dockworker",
+    "brad_barber"
+  ],
+  "mafiaKnowsInspector": false,
+  "gameOver": false,
+  "winner": null,
+  "eliminatedThisVote": null,
+  "setupConfig": {
+    "playerCount": 8,
+    "conversationsPerDay": 3,
+    "chunksPerDay": 8
+  },
+  "mafiaState": {
+    "coordinated": false,
+    "meetingNode": null,
+    "meetChunk": null,
+    "target": "viktor_farmer",
+    "killerMafiaId": null,
+    "poisoned": false,
+    "noKill": false,
+    "dispersed": false
+  },
+  "day0Murder": {
+    "victimId": "piotr_miller",
+    "victimName": "Piotr the Miller",
+    "victimLocation": "tavern",
+    "killerId": "lev_dockworker",
+    "witnesses": [
+      {
+        "id": "dasha_healer",
+        "name": "Dasha the Healer"
+      },
+      {
+        "id": "anya_seamstress",
+        "name": "Anya the Seamstress"
+      }
+    ]
+  },
+  "_sessionId": "0533c135",
+  "_createdAt": "2026-03-31T23:15:56.180Z",
+  "playerKilledThisNight": false
+}

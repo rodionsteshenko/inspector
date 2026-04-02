@@ -1,57 +1,65 @@
 // NPC AI movement: each chunk, NPCs move one step toward their role goals
 
 import { ROLES } from './roles.js';
-import { getAdjacentLocations, MAP_NODES } from './map.js';
+import { getAdjacentLocations, MAP_NODES, ADJACENCY_MAP } from './map.js';
 import { validateMove, moveCharacter } from './movement.js';
 import { getMafiaKillerNextMove, updateMafiaState, createDayMafiaState } from './poisoning.js';
 
-function getPublicLocationIds() {
-  return MAP_NODES.filter(n => n.visibility === 'public').map(n => n.id);
+function getNodes(state) {
+  return state.mapConfig?.nodes || MAP_NODES;
 }
 
-function pickRandomAdjacent(location, rng) {
-  const adj = getAdjacentLocations(location);
+function getAdj(state) {
+  return state.mapConfig?.adjacencyMap || ADJACENCY_MAP;
+}
+
+function getPublicLocationIds(state) {
+  return getNodes(state).filter(n => n.visibility === 'public').map(n => n.id);
+}
+
+function pickRandomAdjacent(location, state, rng) {
+  const adj = getAdjacentLocations(location, getAdj(state));
   if (adj.length === 0) return null;
   return adj[Math.floor(rng() * adj.length)];
 }
 
 // Doctor: gravitates toward public locations, moves around to stay informed
 function getDoctorNextMove(character, state, rng) {
-  if (rng() > 0.5) return null; // Stay put half the time
+  if (rng() > 0.35) return null; // Stay put most of the time
 
-  const publicLocs = getPublicLocationIds();
-  const adj = getAdjacentLocations(character.location);
+  const publicLocs = getPublicLocationIds(state);
+  const adj = getAdjacentLocations(character.location, getAdj(state));
   const publicAdj = adj.filter(id => publicLocs.includes(id));
 
   if (publicAdj.length > 0 && rng() < 0.65) {
     return publicAdj[Math.floor(rng() * publicAdj.length)];
   }
 
-  return pickRandomAdjacent(character.location, rng);
+  return pickRandomAdjacent(character.location, state, rng);
 }
 
 // Mason: tries to find a partner to confirm innocence, then behaves like citizen
 function getMasonNextMove(character, state, rng) {
-  if (rng() > 0.45) return null;
-  return pickRandomAdjacent(character.location, rng);
+  if (rng() > 0.3) return null; // Stay put often
+  return pickRandomAdjacent(character.location, state, rng);
 }
 
 // Journalist: social, moves around public areas
 function getJournalistNextMove(character, state, rng) {
-  if (rng() > 0.55) return null;
-  const publicLocs = getPublicLocationIds();
-  const adj = getAdjacentLocations(character.location);
+  if (rng() > 0.4) return null; // Stays put more than they move
+  const publicLocs = getPublicLocationIds(state);
+  const adj = getAdjacentLocations(character.location, getAdj(state));
   const publicAdj = adj.filter(id => publicLocs.includes(id));
   if (publicAdj.length > 0 && rng() < 0.7) {
     return publicAdj[Math.floor(rng() * publicAdj.length)];
   }
-  return pickRandomAdjacent(character.location, rng);
+  return pickRandomAdjacent(character.location, state, rng);
 }
 
 // Citizen: semi-random movement, personality-driven
-function getCitizenNextMove(character, rng) {
-  if (rng() > 0.45) return null; // Stay put often
-  return pickRandomAdjacent(character.location, rng);
+function getCitizenNextMove(character, state, rng) {
+  if (rng() > 0.3) return null; // Stay put most of the time
+  return pickRandomAdjacent(character.location, state, rng);
 }
 
 // Get next location for an NPC based on their role
@@ -67,7 +75,7 @@ function getNPCNextLocation(character, state, rng) {
       return getJournalistNextMove(character, state, rng);
     case ROLES.CITIZEN:
     default:
-      return getCitizenNextMove(character, rng);
+      return getCitizenNextMove(character, state, rng);
   }
 }
 

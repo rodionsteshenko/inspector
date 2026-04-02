@@ -47,14 +47,15 @@ export function hasMafiaParity(characters) {
 export function checkWinCondition(gameState) {
   const { characters, day, phase } = gameState;
 
-  // Player killed?
+  // Player killed? Only possible via alliance with mafia (formAlliance handles that directly).
+  // Mafia cannot target the player during normal night kills.
   if (!isPlayerAlive(characters)) {
     return { state: WIN_STATES.MAFIA_WINS, reason: LOSE_REASONS.PLAYER_KILLED };
   }
 
   // All mafia eliminated?
   if (allMafiaEliminated(characters)) {
-    return { state: WIN_STATES.PLAYER_WINS, reason: null };
+    return { state: WIN_STATES.PLAYER_WINS, reason: 'all_mafia_eliminated' };
   }
 
   // Mafia parity?

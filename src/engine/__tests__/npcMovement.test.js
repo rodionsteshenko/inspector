@@ -28,10 +28,11 @@ describe('moveNPCs', () => {
     const state = makeSetupState();
     const rng = makeDeterministicRng(1);
     const newState = moveNPCs(state, rng);
+    const nodes = state.mapConfig?.nodes;
 
     const npcs = newState.characters.filter(c => c.id !== 'player' && c.alive);
     for (const npc of npcs) {
-      expect(isValidLocation(npc.location)).toBe(true);
+      expect(isValidLocation(npc.location, nodes)).toBe(true);
     }
   });
 
@@ -39,12 +40,13 @@ describe('moveNPCs', () => {
     const state = makeSetupState();
     const rng = makeDeterministicRng(1);
     const newState = moveNPCs(state, rng);
+    const adj = state.mapConfig?.adjacencyMap;
 
     const npcs = state.characters.filter(c => c.id !== 'player' && c.alive);
     for (const npc of npcs) {
       const newNpc = newState.characters.find(c => c.id === npc.id);
       if (newNpc.location !== npc.location) {
-        expect(isAdjacent(npc.location, newNpc.location)).toBe(true);
+        expect(isAdjacent(npc.location, newNpc.location, adj)).toBe(true);
       }
     }
   });
@@ -76,12 +78,16 @@ describe('moveNPCs', () => {
     const mafia = state.characters.filter(c => c.role === ROLES.MAFIA);
     if (mafia.length < 2) return;
 
-    // Force mafia apart
+    // Force mafia apart using the first and last nodes on the map
+    const mapNodes = state.mapConfig?.nodes || [];
+    const startLocA = mapNodes[0]?.id || 'town_square';
+    const startLocB = mapNodes[mapNodes.length - 1]?.id || 'tavern';
+
     state = {
       ...state,
       characters: state.characters.map(c => {
-        if (c.id === mafia[0].id) return { ...c, location: 'town_square' };
-        if (c.id === mafia[1].id) return { ...c, location: 'cellar' };
+        if (c.id === mafia[0].id) return { ...c, location: startLocA };
+        if (c.id === mafia[1].id) return { ...c, location: startLocB };
         return c;
       }),
       chunk: 2,
@@ -103,7 +109,7 @@ describe('moveNPCs', () => {
     const m0 = s.characters.find(c => c.id === mafia[0].id);
     const m1 = s.characters.find(c => c.id === mafia[1].id);
     // Either they coordinated or they moved from their starting positions
-    const moved = m0.location !== 'town_square' || m1.location !== 'cellar';
+    const moved = m0.location !== startLocA || m1.location !== startLocB;
     expect(moved || coordinated).toBe(true);
   });
 

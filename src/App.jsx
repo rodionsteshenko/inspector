@@ -5,11 +5,12 @@ import {
   transitionToDay,
   setNightAction, recordConversation, PHASES
 } from './engine/gameState.js';
-import { movePlayer, generateLocationObservation, logMovementToEvidence } from './engine/movement.js';
+import { movePlayer, generateLocationObservation, logMovementToEvidence, observeNPCCoPresence } from './engine/movement.js';
 import { resolveNight, doctorChooseTarget, mafiaChooseTarget } from './engine/nightResolution.js';
-import { checkWinCondition, applyVoteResult, formAlliance, WIN_STATES } from './engine/winCondition.js';
+import { checkWinCondition, formAlliance, WIN_STATES } from './engine/winCondition.js';
 import { runContradictionCheck } from './engine/evidenceBoard.js';
 import { moveNPCs } from './engine/npcMovement.js';
+import { saveGame, loadGame } from './engine/saveLoad.js';
 import SetupScreen from './components/SetupScreen.jsx';
 import CharacterRevealScreen from './components/CharacterRevealScreen.jsx';
 import DayView from './components/DayView.jsx';
@@ -40,6 +41,21 @@ function App() {
     setScreen('game');
   }, []);
 
+  const handleLoadGame = useCallback((saveId) => {
+    const state = loadGame(saveId);
+    if (state) {
+      setGameState(state);
+      setScreen('game');
+    }
+  }, []);
+
+  const handleSaveGame = useCallback(() => {
+    setGameState(prev => {
+      if (prev) saveGame(prev);
+      return prev;
+    });
+  }, []);
+
   // ── Game helpers ────────────────────────────────────────────────────────
 
   const checkAndApplyWin = useCallback((state) => {
@@ -56,21 +72,43 @@ function App() {
     return state;
   }, []);
 
+  // Set NPC night targets when day transitions to night
+  const setNPCNightTargets = useCallback((state) => {
+    if (state.phase !== PHASES.NIGHT) return state;
+    const mafiaTarget = mafiaChooseTarget(state);
+    const doctorTarget = doctorChooseTarget(state);
+    let s = state;
+    if (mafiaTarget) s = setNightAction(s, 'mafiaTarget', mafiaTarget);
+    if (doctorTarget) s = setNightAction(s, 'doctorTarget', doctorTarget);
+    return s;
+  }, []);
+
   // ── Day phase handlers ──────────────────────────────────────────────────
+
+  // End the current chunk: NPCs observe each other, then move to positions for NEXT chunk.
+  // Order: player acts → NPCs observe at current positions → chunk advances → NPCs move to next positions.
+  // This means the player always sees NPC positions BEFORE acting, not after.
+  const endChunk = useCallback((state) => {
+    let s = observeNPCCoPresence(state); // NPCs record who they're with right now
+    s = advanceChunk(s);                 // chunk counter increments (may flip to NIGHT)
+    if (s.phase === PHASES.DAY) {
+      s = moveNPCs(s);                   // NPCs move to their positions for the NEW chunk
+    }
+    s = setNPCNightTargets(s);
+    return checkAndApplyWin(s);
+  }, [checkAndApplyWin, setNPCNightTargets]);
 
   const handleMove = useCallback((toLocation) => {
     setGameState(prev => {
       try {
         let s = movePlayer(prev, toLocation);
-        s = moveNPCs(s);          // NPCs move each chunk
-        s = advanceChunk(s);
-        return checkAndApplyWin(s);
+        return endChunk(s);
       } catch (e) {
         console.error('Move failed:', e.message);
         return prev;
       }
     });
-  }, [checkAndApplyWin]);
+  }, [endChunk]);
 
   const handleObserve = useCallback(() => {
     setGameState(prev => {
@@ -84,11 +122,9 @@ function App() {
         }
         s = { ...prev, evidenceBoard: board };
       }
-      s = moveNPCs(s);            // NPCs move each chunk
-      s = advanceChunk(s);
-      return checkAndApplyWin(s);
+      return endChunk(s);
     });
-  }, [checkAndApplyWin]);
+  }, [endChunk]);
 
   const handleTalk = useCallback((targetId) => {
     setGameState(prev => {
@@ -127,10 +163,22 @@ function App() {
         verified: character?.verifiedByInspector && !claim.isLie,
       }));
 
+      // Add this NPC's observations so they can contradict other NPCs' claims
+      const npcObs = (testimony.observations || []).map(obs => ({
+        witnessId: targetId,
+        witnessName: character?.name || targetId,
+        subjectId: obs.subjectId,
+        subjectName: obs.subjectName,
+        location: obs.location,
+        day: obs.day,
+        chunk: obs.chunk,
+      }));
+
       let newBoard = {
         ...prev.evidenceBoard,
         conversationLogs: [...(prev.evidenceBoard.conversationLogs || []), entry],
         claimedFacts: [...(prev.evidenceBoard.claimedFacts || []), ...locationFacts],
+        npcObservations: [...(prev.evidenceBoard.npcObservations || []), ...npcObs],
       };
 
       // Run contradiction check after adding claimed facts
@@ -144,14 +192,12 @@ function App() {
     setConversationTarget(null);
     setGameState(prev => {
       try {
-        let s = moveNPCs(prev);   // NPCs move when conversation ends
-        s = advanceChunk(s);
-        return checkAndApplyWin(s);
+        return endChunk(prev);
       } catch (e) {
         return prev;
       }
     });
-  }, [checkAndApplyWin]);
+  }, [endChunk]);
 
   const handleAlliance = useCallback((characterId) => {
     setGameState(prev => {
@@ -163,23 +209,6 @@ function App() {
       return checkAndApplyWin(s);
     });
   }, [checkAndApplyWin]);
-
-  const handleCallVote = useCallback(() => {
-    setGameState(prev => {
-      if (prev.phase !== PHASES.DAY) return prev;
-      // Advance all remaining chunks — advanceChunk goes to NIGHT when day ends
-      let s = prev;
-      while (s.phase === PHASES.DAY) {
-        s = advanceChunk(s);
-      }
-      // s is now in NIGHT phase; set NPC night targets
-      const mafiaTarget = mafiaChooseTarget(s);
-      const doctorTarget = doctorChooseTarget(s);
-      if (mafiaTarget) s = setNightAction(s, 'mafiaTarget', mafiaTarget);
-      if (doctorTarget) s = setNightAction(s, 'doctorTarget', doctorTarget);
-      return s;
-    });
-  }, []);
 
   // ── Night handlers ───────────────────────────────────────────────────────
 
@@ -214,7 +243,7 @@ function App() {
 
   // Pre-game screens
   if (screen === PRE_GAME.SETUP) {
-    return <SetupScreen onStartGame={handleStartGame} />;
+    return <SetupScreen onStartGame={handleStartGame} onLoadGame={handleLoadGame} />;
   }
 
   if (screen === PRE_GAME.REVEAL && gameState) {
@@ -223,7 +252,7 @@ function App() {
 
   // Game screens
   if (!gameState) {
-    return <SetupScreen onStartGame={handleStartGame} />;
+    return <SetupScreen onStartGame={handleStartGame} onLoadGame={handleLoadGame} />;
   }
 
   const { phase } = gameState;
@@ -244,11 +273,11 @@ function App() {
       onMove={handleMove}
       onObserve={handleObserve}
       onTalk={handleTalk}
-      onCallVote={handleCallVote}
       onAlliance={handleAlliance}
       conversationTarget={conversationTarget}
       onCloseConversation={handleCloseConversation}
       onLogConversation={handleLogConversation}
+      onSave={handleSaveGame}
     />
   );
 }

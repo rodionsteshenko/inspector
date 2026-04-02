@@ -1,27 +1,21 @@
-import { MAP_NODES, MAP_EDGES, getAdjacentLocations } from '../engine/map.js';
-
-// Village layout - positions chosen to feel like a real map
-const NODE_POSITIONS = {
-  church:      { x: 180, y: 85 },
-  docks:       { x: 590, y: 85 },
-  town_square: { x: 380, y: 210 },
-  market:      { x: 175, y: 320 },
-  library:     { x: 65,  y: 430 },
-  tavern:      { x: 510, y: 320 },
-  alley:       { x: 615, y: 425 },
-  cellar:      { x: 695, y: 520 },
-};
+import { getAdjacentLocations, MAP_NODES, MAP_EDGES, ADJACENCY_MAP } from '../engine/map.js';
 
 const NODE_RADIUS = 28;
 
 export default function Map({ gameState, onMove }) {
-  const { playerLocation, characters, phase } = gameState;
-  const adjacentLocations = getAdjacentLocations(playerLocation);
+  const { playerLocation, characters, phase, mapConfig } = gameState;
+  const nodes = mapConfig?.nodes || MAP_NODES;
+  const edges = mapConfig?.edges || MAP_EDGES;
+  const positions = mapConfig?.nodePositions || {};
+  const viewBox = mapConfig?.svgViewBox || '0 0 760 570';
+  const adjacencyMap = mapConfig?.adjacencyMap || ADJACENCY_MAP;
+
+  const adjacentLocations = getAdjacentLocations(playerLocation, adjacencyMap);
   const canMove = phase === 'day';
 
   // Group alive non-player characters by location
   const npcsByLocation = {};
-  for (const node of MAP_NODES) {
+  for (const node of nodes) {
     npcsByLocation[node.id] = characters.filter(
       c => c.alive && c.location === node.id && c.id !== 'player'
     );
@@ -36,7 +30,7 @@ export default function Map({ gameState, onMove }) {
   return (
     <svg
       data-testid="map"
-      viewBox="0 0 760 570"
+      viewBox={viewBox}
       className="w-full h-full"
       style={{ maxHeight: '100%' }}
     >
@@ -46,13 +40,24 @@ export default function Map({ gameState, onMove }) {
           <stop offset="0%" stopColor="#0d1520" />
           <stop offset="100%" stopColor="#060b12" />
         </radialGradient>
+        {/* Clip paths for location images */}
+        {nodes.map(node => {
+          const pos = positions[node.id];
+          if (!pos) return null;
+          return (
+            <clipPath key={`clip-${node.id}`} id={`clip-${node.id}`}>
+              <circle cx={pos.x} cy={pos.y} r={NODE_RADIUS} />
+            </clipPath>
+          );
+        })}
       </defs>
-      <rect width="760" height="570" fill="url(#bgGrad)" />
+      <rect width="100%" height="100%" fill="url(#bgGrad)" />
 
       {/* Edges / paths between locations */}
-      {MAP_EDGES.map(([a, b], i) => {
-        const pa = NODE_POSITIONS[a];
-        const pb = NODE_POSITIONS[b];
+      {edges.map(([a, b], i) => {
+        const pa = positions[a];
+        const pb = positions[b];
+        if (!pa || !pb) return null;
         const isPlayerPath = (a === playerLocation || b === playerLocation) &&
           (adjacentLocations.includes(a) || adjacentLocations.includes(b));
         return (
@@ -68,8 +73,9 @@ export default function Map({ gameState, onMove }) {
       })}
 
       {/* Nodes */}
-      {MAP_NODES.map(node => {
-        const pos = NODE_POSITIONS[node.id];
+      {nodes.map(node => {
+        const pos = positions[node.id];
+        if (!pos) return null;
         const isPlayerHere = node.id === playerLocation;
         const isAdjacent = adjacentLocations.includes(node.id);
         const isClickable = canMove && isAdjacent;
@@ -117,11 +123,23 @@ export default function Map({ gameState, onMove }) {
               />
             )}
 
-            {/* Main node circle */}
+            {/* Location image (clipped to circle) */}
+            <image
+              href={`/images/locations/${node.id}.png`}
+              x={pos.x - NODE_RADIUS}
+              y={pos.y - NODE_RADIUS}
+              width={NODE_RADIUS * 2}
+              height={NODE_RADIUS * 2}
+              clipPath={`url(#clip-${node.id})`}
+              preserveAspectRatio="xMidYMid slice"
+              opacity={isPlayerHere ? 1 : isClickable ? 0.85 : 0.5}
+            />
+
+            {/* Node border circle */}
             <circle
               cx={pos.x} cy={pos.y}
               r={NODE_RADIUS}
-              fill={fillColor}
+              fill="none"
               stroke={strokeColor}
               strokeWidth={strokeWidth}
             />

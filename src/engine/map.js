@@ -1,4 +1,6 @@
 // Map graph, adjacency, movement validation
+// All utility functions accept optional params, defaulting to the legacy 8-node map.
+// New code should pass state.mapConfig.adjacencyMap / state.mapConfig.nodes instead.
 
 export const MAP_NODES = [
   { id: 'town_square', name: 'Town Square', capacity: 6, visibility: 'public', description: 'The busy center of village life.' },
@@ -27,38 +29,38 @@ export function buildAdjacencyMap(nodes, edges) {
     adj[node.id] = [];
   }
   for (const [a, b] of edges) {
-    adj[a].push(b);
-    adj[b].push(a);
+    if (adj[a]) adj[a].push(b);
+    if (adj[b]) adj[b].push(a);
   }
   return adj;
 }
 
 export const ADJACENCY_MAP = buildAdjacencyMap(MAP_NODES, MAP_EDGES);
 
-export function getAdjacentLocations(nodeId) {
-  return ADJACENCY_MAP[nodeId] || [];
+export function getAdjacentLocations(nodeId, adjacencyMap = ADJACENCY_MAP) {
+  return adjacencyMap[nodeId] || [];
 }
 
-export function isAdjacent(fromId, toId) {
-  return (ADJACENCY_MAP[fromId] || []).includes(toId);
+export function isAdjacent(fromId, toId, adjacencyMap = ADJACENCY_MAP) {
+  return (adjacencyMap[fromId] || []).includes(toId);
 }
 
-export function getNodeById(nodeId) {
-  return MAP_NODES.find(n => n.id === nodeId) || null;
+export function getNodeById(nodeId, nodes = MAP_NODES) {
+  return nodes.find(n => n.id === nodeId) || null;
 }
 
-export function isValidLocation(nodeId) {
-  return MAP_NODES.some(n => n.id === nodeId);
+export function isValidLocation(nodeId, nodes = MAP_NODES) {
+  return nodes.some(n => n.id === nodeId);
 }
 
-export function getShortestPath(fromId, toId) {
+export function getShortestPath(fromId, toId, adjacencyMap = ADJACENCY_MAP) {
   if (fromId === toId) return [fromId];
   const queue = [[fromId]];
   const visited = new Set([fromId]);
   while (queue.length > 0) {
     const path = queue.shift();
     const current = path[path.length - 1];
-    for (const neighbor of ADJACENCY_MAP[current] || []) {
+    for (const neighbor of (adjacencyMap[current] || [])) {
       if (neighbor === toId) return [...path, neighbor];
       if (!visited.has(neighbor)) {
         visited.add(neighbor);
@@ -69,8 +71,8 @@ export function getShortestPath(fromId, toId) {
   return null;
 }
 
-export function getMinimumMoves(fromId, toId) {
-  const path = getShortestPath(fromId, toId);
+export function getMinimumMoves(fromId, toId, adjacencyMap = ADJACENCY_MAP) {
+  const path = getShortestPath(fromId, toId, adjacencyMap);
   if (!path) return null;
   return path.length - 1;
 }

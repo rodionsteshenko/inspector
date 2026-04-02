@@ -226,11 +226,12 @@ describe('planMafiaDay', () => {
     if (mafia.length < 2) return;
 
     const { getMinimumMoves } = require('../map.js');
+    const adj = state.mapConfig?.adjacencyMap;
     const plan = planMafiaDay(state, makeDeterministicRng(1));
 
     if (!plan.noKill) {
-      const distA = getMinimumMoves(mafia[0].location, plan.meetingNode);
-      const distB = getMinimumMoves(mafia[1].location, plan.meetingNode);
+      const distA = getMinimumMoves(mafia[0].location, plan.meetingNode, adj);
+      const distB = getMinimumMoves(mafia[1].location, plan.meetingNode, adj);
       // meetChunk = max(distA, distB) + 1
       expect(plan.meetChunk).toBe(Math.max(distA, distB) + 1);
     }
@@ -242,9 +243,11 @@ describe('planMafiaDay', () => {
 
     if (!plan.noKill && plan.meetingNode && plan.target) {
       const { getMinimumMoves } = require('../map.js');
+      const adj = state.mapConfig?.adjacencyMap;
       const target = state.characters.find(c => c.id === plan.target);
-      const distToTarget = getMinimumMoves(plan.meetingNode, target.location);
-      const chunksAfterMeeting = 8 - plan.meetChunk;
+      const distToTarget = getMinimumMoves(plan.meetingNode, target.location, adj);
+      const chunksPerDay = state.chunksPerDay || 8;
+      const chunksAfterMeeting = chunksPerDay - plan.meetChunk;
       expect(distToTarget).toBeLessThanOrEqual(chunksAfterMeeting);
     }
   });
@@ -688,10 +691,12 @@ describe('updateMafiaState', () => {
     if (mafia.length < 2) return;
 
     const nonMafia = state.characters.find(c => c.alive && c.role !== ROLES.MAFIA);
+    // Use a valid location from the current map
+    const meetLoc = state.mapConfig?.nodes?.[0]?.id || 'church';
 
     const chars = state.characters.map(c => {
       if (c.id === mafia[0].id || c.id === mafia[1].id) {
-        return { ...c, location: 'alley' };
+        return { ...c, location: meetLoc };
       }
       return c;
     });
@@ -700,7 +705,7 @@ describe('updateMafiaState', () => {
       characters: chars,
       mafiaState: {
         coordinated: false,
-        meetingNode: 'alley',
+        meetingNode: meetLoc,
         meetChunk: 3,
         target: nonMafia?.id || null,
         killerMafiaId: null,

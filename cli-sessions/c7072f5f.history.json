@@ -1,0 +1,104 @@
+[
+  {
+    "step": 0,
+    "command": "new",
+    "args": [
+      "8"
+    ],
+    "day": 1,
+    "chunk": 1,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:48:43.342Z"
+  },
+  {
+    "step": 1,
+    "command": "talk",
+    "args": [
+      "elena_innkeeper"
+    ],
+    "day": 1,
+    "chunk": 2,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:48:53.271Z"
+  },
+  {
+    "step": 2,
+    "command": "move",
+    "args": [
+      "tavern"
+    ],
+    "day": 1,
+    "chunk": 3,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:49:09.979Z"
+  },
+  {
+    "step": 3,
+    "command": "talk",
+    "args": [
+      "old_tomas"
+    ],
+    "day": 1,
+    "chunk": 4,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:49:16.729Z"
+  },
+  {
+    "step": 4,
+    "command": "move",
+    "args": [
+      "town_square"
+    ],
+    "day": 1,
+    "chunk": 5,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:49:26.304Z"
+  },
+  {
+    "step": 5,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 6,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:49:42.974Z"
+  },
+  {
+    "step": 6,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 7,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:49:43.002Z"
+  },
+  {
+    "step": 7,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 8,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:49:43.025Z"
+  },
+  {
+    "step": 8,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 8,
+    "phase": "night",
+    "timestamp": "2026-04-01T02:49:43.048Z"
+  },
+  {
+    "step": 9,
+    "command": "night",
+    "args": [
+      "old_tomas"
+    ],
+    "day": 1,
+    "chunk": 8,
+    "phase": "game_over",
+    "timestamp": "2026-04-01T02:49:50.373Z"
+  }
+]

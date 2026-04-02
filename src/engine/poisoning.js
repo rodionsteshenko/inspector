@@ -1,8 +1,11 @@
 // Poisoning mechanic: mafia coordination and proximity tracking
 // Mafia must meet (coordinate) then reach target to poison them
 
-import { getShortestPath, getMinimumMoves, getAdjacentLocations, MAP_NODES } from './map.js';
+import { getShortestPath, getMinimumMoves, getAdjacentLocations, MAP_NODES, ADJACENCY_MAP } from './map.js';
 import { ROLES } from './roles.js';
+
+function getNodes(state) { return state.mapConfig?.nodes || MAP_NODES; }
+function getAdj(state) { return state.mapConfig?.adjacencyMap || ADJACENCY_MAP; }
 
 export function getMafiaAlive(characters) {
   return characters.filter(c => c.role === ROLES.MAFIA && c.alive);
@@ -15,16 +18,13 @@ export function isMafiaCoordinated(characters) {
   return mafia[0].location === mafia[1].location;
 }
 
-// Choose a target to poison (non-mafia, alive)
+// Choose a target to poison (non-mafia, alive, never the player)
+// The mafia doesn't know who the inspector is — they target NPCs only.
+// The only way the player dies is by voluntarily revealing themselves to a mafia member.
 export function choosePoisonTarget(characters, rng = Math.random) {
-  const eligible = characters.filter(c => c.alive && c.role !== ROLES.MAFIA);
+  const eligible = characters.filter(c => c.alive && c.role !== ROLES.MAFIA && c.id !== 'player');
   if (eligible.length === 0) return null;
-  // Occasionally target the player (30% chance)
-  const player = eligible.find(c => c.id === 'player');
-  if (player && eligible.length > 1 && rng() < 0.3) return 'player';
-  const others = eligible.filter(c => c.id !== 'player');
-  if (others.length === 0) return player ? player.id : null;
-  return others[Math.floor(rng() * others.length)].id;
+  return eligible[Math.floor(rng() * eligible.length)].id;
 }
 
 // Check if any mafia member is at the same location as the target
@@ -37,30 +37,32 @@ export function hasMafiaReachedTarget(characters, targetId) {
 }
 
 // Get next step on path from current to target location
-export function getNextStep(currentId, targetId) {
+export function getNextStep(currentId, targetId, adjacencyMap = ADJACENCY_MAP) {
   if (!currentId || !targetId || currentId === targetId) return null;
-  const path = getShortestPath(currentId, targetId);
+  const path = getShortestPath(currentId, targetId, adjacencyMap);
   if (!path || path.length < 2) return null;
   return path[1];
 }
 
 // Move non-killer mafia away from killer and target (dispersal behavior)
 function getDispersalMove(character, killerLocation, targetLocation, state) {
-  const adj = getAdjacentLocations(character.location);
+  const adj = getAdjacentLocations(character.location, getAdj(state));
   if (adj.length === 0) return null;
 
   const { characters } = state;
+  const nodes = getNodes(state);
+  const adjacencyMap = getAdj(state);
 
   const scored = adj.map(loc => {
-    const distToKiller = getMinimumMoves(loc, killerLocation) || 0;
-    const distToTarget = getMinimumMoves(loc, targetLocation) || 0;
+    const distToKiller = getMinimumMoves(loc, killerLocation, adjacencyMap) || 0;
+    const distToTarget = getMinimumMoves(loc, targetLocation, adjacencyMap) || 0;
     return { loc, score: distToKiller + distToTarget };
   });
   scored.sort((a, b) => b.score - a.score);
 
   // Find first adjacent node that is not at capacity
   for (const { loc } of scored) {
-    const node = MAP_NODES.find(n => n.id === loc);
+    const node = nodes.find(n => n.id === loc);
     if (node) {
       const occupants = characters.filter(c => c.alive && c.location === loc).length;
       if (occupants < node.capacity) {
@@ -77,6 +79,8 @@ function getDispersalMove(character, killerLocation, targetLocation, state) {
 export function planMafiaDay(state, rng = Math.random) {
   const { characters } = state;
   const mafia = getMafiaAlive(characters);
+  const nodes = getNodes(state);
+  const adjacencyMap = getAdj(state);
 
   const emptyPlan = {
     coordinated: false,
@@ -104,19 +108,20 @@ export function planMafiaDay(state, rng = Math.random) {
   }
 
   // Try every (target, meeting_node) pair for feasibility
+  const chunksPerDay = state.chunksPerDay || 8;
   const feasiblePlans = [];
 
   for (const target of potentialTargets) {
-    for (const node of MAP_NODES) {
-      const distA = getMinimumMoves(mafiaA.location, node.id);
-      const distB = getMinimumMoves(mafiaB.location, node.id);
+    for (const node of nodes) {
+      const distA = getMinimumMoves(mafiaA.location, node.id, adjacencyMap);
+      const distB = getMinimumMoves(mafiaB.location, node.id, adjacencyMap);
       if (distA === null || distB === null) continue;
 
       const meetChunk = Math.max(distA, distB) + 1;
-      if (meetChunk > 8) continue;
+      if (meetChunk > chunksPerDay) continue;
 
-      const chunksAfterMeeting = 8 - meetChunk;
-      const distToTarget = getMinimumMoves(node.id, target.location);
+      const chunksAfterMeeting = chunksPerDay - meetChunk;
+      const distToTarget = getMinimumMoves(node.id, target.location, adjacencyMap);
       if (distToTarget === null) continue;
 
       if (distToTarget <= chunksAfterMeeting) {
@@ -145,14 +150,13 @@ export function planMafiaDay(state, rng = Math.random) {
   const playerFeasible = byTarget['player'] !== undefined;
   const nonPlayerTargetIds = feasibleTargetIds.filter(id => id !== 'player');
 
-  // Choose target: 30% chance to target player if feasible and others exist
+  // Always pick a non-player target — mafia doesn't know who the inspector is
   let chosenTargetId;
-  if (playerFeasible && nonPlayerTargetIds.length > 0 && rng() < 0.3) {
-    chosenTargetId = 'player';
-  } else if (nonPlayerTargetIds.length > 0) {
+  if (nonPlayerTargetIds.length > 0) {
     chosenTargetId = nonPlayerTargetIds[Math.floor(rng() * nonPlayerTargetIds.length)];
   } else {
-    chosenTargetId = 'player';
+    // No NPC targets — no kill this night
+    return { ...emptyPlan, noKill: true };
   }
 
   // Pick best plan: earliest meetChunk, then prefer meeting node not at target location
@@ -181,12 +185,13 @@ export function planMafiaDay(state, rng = Math.random) {
 export function getMafiaKillerNextMove(character, state, rng = Math.random) {
   const { mafiaState, characters } = state;
   const mafia = getMafiaAlive(characters);
+  const adjacencyMap = getAdj(state);
 
   if (mafia.length === 0) return null;
 
   // noKill plan: move semi-randomly (citizen behavior) to avoid suspicion
   if (mafiaState && mafiaState.noKill) {
-    const adj = getAdjacentLocations(character.location);
+    const adj = getAdjacentLocations(character.location, adjacencyMap);
     if (adj.length === 0 || rng() > 0.45) return null;
     return adj[Math.floor(rng() * adj.length)];
   }
@@ -195,7 +200,7 @@ export function getMafiaKillerNextMove(character, state, rng = Math.random) {
   if (mafia.length === 1) {
     if (mafiaState && mafiaState.target) {
       const target = characters.find(c => c.id === mafiaState.target && c.alive);
-      if (target) return getNextStep(character.location, target.location);
+      if (target) return getNextStep(character.location, target.location, adjacencyMap);
     }
     return null;
   }
@@ -213,13 +218,13 @@ export function getMafiaKillerNextMove(character, state, rng = Math.random) {
     if (!meetingNode) {
       const partner = mafia.find(m => m.id !== character.id);
       if (partner && partner.location !== character.location) {
-        return getNextStep(character.location, partner.location);
+        return getNextStep(character.location, partner.location, adjacencyMap);
       }
       return null;
     }
 
     if (character.location === meetingNode) return null; // Already at meeting node, stay
-    return getNextStep(character.location, meetingNode);
+    return getNextStep(character.location, meetingNode, adjacencyMap);
   }
 
   // After coordination
@@ -230,12 +235,12 @@ export function getMafiaKillerNextMove(character, state, rng = Math.random) {
 
   // Killer: route toward target
   if (mafiaState.killerMafiaId === character.id) {
-    return getNextStep(character.location, target.location);
+    return getNextStep(character.location, target.location, adjacencyMap);
   }
 
   // Legacy fallback: no killerMafiaId set → all mafia move toward target
   if (!mafiaState.killerMafiaId) {
-    return getNextStep(character.location, target.location);
+    return getNextStep(character.location, target.location, adjacencyMap);
   }
 
   // Non-killer: actively disperse away from killer and target
@@ -263,6 +268,7 @@ export function createDayMafiaState() {
 // Update mafia state after characters move
 export function updateMafiaState(state, rng = Math.random) {
   const { characters, mafiaState } = state;
+  const adjacencyMap = getAdj(state);
   let updated = mafiaState ? { ...mafiaState } : createDayMafiaState();
 
   // Check if mafia should coordinate
@@ -290,8 +296,8 @@ export function updateMafiaState(state, rng = Math.random) {
       if (newTarget && mafia.length >= 2) {
         const target = characters.find(c => c.id === newTarget && c.alive);
         if (target) {
-          const distA = getMinimumMoves(mafia[0].location, target.location);
-          const distB = getMinimumMoves(mafia[1].location, target.location);
+          const distA = getMinimumMoves(mafia[0].location, target.location, adjacencyMap);
+          const distB = getMinimumMoves(mafia[1].location, target.location, adjacencyMap);
           if (distA !== null && distB !== null) {
             killerMafiaId = distA <= distB ? mafia[0].id : mafia[1].id;
           }

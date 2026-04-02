@@ -1,0 +1,553 @@
+{
+  "day": 1,
+  "chunk": 1,
+  "phase": "day",
+  "mapConfig": {
+    "id": "medium",
+    "name": "Village",
+    "description": "5 locations — balanced",
+    "nodes": [
+      {
+        "id": "church",
+        "name": "Church",
+        "capacity": 4,
+        "visibility": "public",
+        "description": "A quiet place for prayer and reflection."
+      },
+      {
+        "id": "docks",
+        "name": "Docks",
+        "capacity": 4,
+        "visibility": "public",
+        "description": "Where fishermen and traders gather."
+      },
+      {
+        "id": "town_square",
+        "name": "Town Square",
+        "capacity": 6,
+        "visibility": "public",
+        "description": "The busy center of village life."
+      },
+      {
+        "id": "market",
+        "name": "Market",
+        "capacity": 5,
+        "visibility": "public",
+        "description": "Bustling stalls and trading."
+      },
+      {
+        "id": "tavern",
+        "name": "Tavern",
+        "capacity": 4,
+        "visibility": "public",
+        "description": "Where gossip flows like ale."
+      }
+    ],
+    "edges": [
+      [
+        "church",
+        "docks"
+      ],
+      [
+        "church",
+        "town_square"
+      ],
+      [
+        "docks",
+        "market"
+      ],
+      [
+        "docks",
+        "town_square"
+      ],
+      [
+        "market",
+        "tavern"
+      ],
+      [
+        "tavern",
+        "town_square"
+      ]
+    ],
+    "nodePositions": {
+      "church": {
+        "x": 150,
+        "y": 80
+      },
+      "docks": {
+        "x": 450,
+        "y": 80
+      },
+      "town_square": {
+        "x": 300,
+        "y": 210
+      },
+      "market": {
+        "x": 450,
+        "y": 340
+      },
+      "tavern": {
+        "x": 150,
+        "y": 340
+      }
+    },
+    "svgViewBox": "0 0 600 440",
+    "adjacencyMap": {
+      "church": [
+        "docks",
+        "town_square"
+      ],
+      "docks": [
+        "church",
+        "market",
+        "town_square"
+      ],
+      "town_square": [
+        "church",
+        "docks",
+        "tavern"
+      ],
+      "market": [
+        "docks",
+        "tavern"
+      ],
+      "tavern": [
+        "market",
+        "town_square"
+      ]
+    }
+  },
+  "playerLocation": "town_square",
+  "characters": [
+    {
+      "id": "player",
+      "name": "The Inspector",
+      "personality": "methodical investigator",
+      "isPlayer": true,
+      "role": "inspector",
+      "location": "town_square",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "town_square"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false
+    },
+    {
+      "id": "piotr_miller",
+      "name": "Piotr the Miller",
+      "personality": "conflict-averse, smooths things over, hates accusation",
+      "isPlayer": false,
+      "role": "journalist",
+      "location": "town_square",
+      "alive": false,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "town_square"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "town_square",
+            "actualLocation": "town_square",
+            "isLie": false
+          }
+        ],
+        "observations": [],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "nadia_librarian",
+      "name": "Nadia the Librarian",
+      "personality": "analytical, collects facts, slow to commit to a theory",
+      "isPlayer": false,
+      "role": "doctor",
+      "location": "church",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "church"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "town_square",
+            "day": 0,
+            "chunk": 8
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "church",
+            "actualLocation": "church",
+            "isLie": false
+          }
+        ],
+        "observations": [],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "viktor_farmer",
+      "name": "Viktor the Farmer",
+      "personality": "blunt, says exactly what he thinks, sometimes wrong",
+      "isPlayer": false,
+      "role": "citizen",
+      "location": "market",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "market"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "market",
+            "actualLocation": "market",
+            "isLie": false
+          }
+        ],
+        "observations": [],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "brad_barber",
+      "name": "Brad the Barber",
+      "personality": "chatty, knows everyone's business, talks too much",
+      "isPlayer": false,
+      "role": "mason",
+      "location": "tavern",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "tavern"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "town_square",
+            "day": 0,
+            "chunk": 8
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "tavern",
+            "actualLocation": "tavern",
+            "isLie": false
+          }
+        ],
+        "observations": [],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "elena_innkeeper",
+      "name": "Elena the Innkeeper",
+      "personality": "warm but strategic, trusts slowly, notices everything",
+      "isPlayer": false,
+      "role": "citizen",
+      "location": "docks",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "docks"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [
+          {
+            "type": "saw_character",
+            "subjectId": "piotr_miller",
+            "subjectName": "Piotr the Miller",
+            "location": "town_square",
+            "day": 0,
+            "chunk": 8
+          },
+          {
+            "type": "saw_character",
+            "subjectId": "mira_merchant",
+            "subjectName": "Mira the Merchant",
+            "location": "town_square",
+            "day": 0,
+            "chunk": 7
+          }
+        ],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "docks",
+            "actualLocation": "docks",
+            "isLie": false
+          }
+        ],
+        "observations": [],
+        "suspicions": []
+      }
+    },
+    {
+      "id": "mira_merchant",
+      "name": "Mira the Merchant",
+      "personality": "calculating, trades information like goods",
+      "isPlayer": false,
+      "role": "mafia",
+      "location": "docks",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "docks"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "church",
+            "actualLocation": "docks",
+            "isLie": true
+          }
+        ],
+        "observations": [],
+        "suspicions": [
+          {
+            "targetId": "viktor_farmer",
+            "targetName": "Viktor the Farmer",
+            "reason": "changed their story about where they were"
+          }
+        ]
+      }
+    },
+    {
+      "id": "lev_dockworker",
+      "name": "Lev the Dockworker",
+      "personality": "quiet, says little, sees more than people think",
+      "isPlayer": false,
+      "role": "mafia",
+      "location": "market",
+      "alive": true,
+      "movementLog": [
+        {
+          "day": 1,
+          "chunk": 0,
+          "location": "market"
+        }
+      ],
+      "conversationLog": [],
+      "knowledgeState": {
+        "witnessed": [],
+        "heardFrom": []
+      },
+      "suspicions": [],
+      "verifiedByInspector": false,
+      "alliedWithInspector": false,
+      "testimony": {
+        "locationClaims": [
+          {
+            "day": 1,
+            "chunk": 0,
+            "claimedLocation": "alley",
+            "actualLocation": "market",
+            "isLie": true
+          }
+        ],
+        "observations": [],
+        "suspicions": [
+          {
+            "targetId": "piotr_miller",
+            "targetName": "Piotr the Miller",
+            "reason": "was acting strange yesterday"
+          }
+        ]
+      }
+    }
+  ],
+  "evidenceBoard": {
+    "confirmedRoles": {},
+    "movementLogs": [
+      {
+        "characterId": "elena_innkeeper",
+        "location": "town_square",
+        "day": 0,
+        "chunk": 8,
+        "observedBy": "witness",
+        "timestamp": "Day 0, Chunk 8 (before your arrival)"
+      },
+      {
+        "characterId": "nadia_librarian",
+        "location": "town_square",
+        "day": 0,
+        "chunk": 8,
+        "observedBy": "witness",
+        "timestamp": "Day 0, Chunk 8 (before your arrival)"
+      },
+      {
+        "characterId": "brad_barber",
+        "location": "town_square",
+        "day": 0,
+        "chunk": 8,
+        "observedBy": "witness",
+        "timestamp": "Day 0, Chunk 8 (before your arrival)"
+      }
+    ],
+    "contradictions": [],
+    "deathLog": [
+      {
+        "characterId": "piotr_miller",
+        "characterName": "Piotr the Miller",
+        "day": 0,
+        "location": "town_square",
+        "cause": "mafia_kill"
+      }
+    ],
+    "alliances": [],
+    "allyObservations": []
+  },
+  "investigationsUsed": 0,
+  "investigationsAvailable": 1,
+  "conversationsUsed": 0,
+  "conversationsAvailable": 3,
+  "conversationsPerDay": 3,
+  "chunksPerDay": 8,
+  "nightActions": {
+    "mafiaTarget": null,
+    "doctorTarget": null,
+    "inspectorTarget": null,
+    "playerEliminate": null
+  },
+  "lastNightResult": null,
+  "masonKnownInnocent": "piotr_miller",
+  "mafiaIds": [
+    "mira_merchant",
+    "lev_dockworker"
+  ],
+  "mafiaKnowsInspector": false,
+  "gameOver": false,
+  "winner": null,
+  "eliminatedThisVote": null,
+  "setupConfig": {
+    "playerCount": 8,
+    "conversationsPerDay": 3,
+    "chunksPerDay": 8
+  },
+  "mafiaState": {
+    "coordinated": false,
+    "meetingNode": "docks",
+    "meetChunk": 2,
+    "target": "viktor_farmer",
+    "killerMafiaId": null,
+    "poisoned": false,
+    "noKill": false,
+    "dispersed": false
+  },
+  "day0Murder": {
+    "victimId": "piotr_miller",
+    "victimName": "Piotr the Miller",
+    "victimLocation": "town_square",
+    "killerId": "mira_merchant",
+    "witnesses": [
+      {
+        "id": "elena_innkeeper",
+        "name": "Elena the Innkeeper"
+      },
+      {
+        "id": "nadia_librarian",
+        "name": "Nadia the Librarian"
+      },
+      {
+        "id": "brad_barber",
+        "name": "Brad the Barber"
+      }
+    ]
+  },
+  "_sessionId": "0bc044fc",
+  "_createdAt": "2026-03-31T12:45:11.820Z"
+}

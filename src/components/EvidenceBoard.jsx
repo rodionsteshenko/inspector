@@ -1,15 +1,4 @@
-import { getNodeById } from '../engine/map.js';
-
-const LOCATION_DISPLAY = {
-  town_square: 'Town Square',
-  church:      'Church',
-  docks:       'Docks',
-  market:      'Market',
-  tavern:      'Tavern',
-  library:     'Library',
-  alley:       'Alley',
-  cellar:      'Cellar',
-};
+import { getNodeById, MAP_NODES } from '../engine/map.js';
 
 const ROLE_COLORS = {
   mafia:      'text-red-400',
@@ -26,7 +15,8 @@ function RoleBadge({ role }) {
 }
 
 export default function EvidenceBoard({ gameState }) {
-  const { evidenceBoard, characters } = gameState;
+  const { evidenceBoard, characters, mapConfig } = gameState;
+  const nodes = mapConfig?.nodes || MAP_NODES;
   const { confirmedRoles, movementLogs, contradictions, deathLog, alliances } = evidenceBoard;
   const conversationLogs = evidenceBoard.conversationLogs || [];
   const claimedFacts     = evidenceBoard.claimedFacts     || [];
@@ -36,6 +26,11 @@ export default function EvidenceBoard({ gameState }) {
   const getCharName = (id) => {
     const c = characters.find(ch => ch.id === id);
     return c?.name || id;
+  };
+
+  const getLocName = (locId) => {
+    const node = getNodeById(locId, nodes);
+    return node?.name || locId;
   };
 
   const confirmedEntries = Object.entries(confirmedRoles);
@@ -92,18 +87,15 @@ export default function EvidenceBoard({ gameState }) {
           <section>
             <h3 className="text-green-600 uppercase tracking-wider text-xs mb-2">Ally Intel</h3>
             <ul className="space-y-1">
-              {allyObservations.slice(-20).map((obs, i) => {
-                const node = getNodeById(obs.location);
-                return (
-                  <li key={i} className="text-green-400">
-                    <span className="text-green-600 text-xs">[{obs.allyName}]</span>{' '}
-                    <span className="text-slate-300">{obs.subjectName}</span>
-                    {' '}at{' '}
-                    <span className="text-slate-300">{node?.name || obs.location}</span>
-                    <span className="text-slate-600 ml-1">— Day {obs.day}</span>
-                  </li>
-                );
-              })}
+              {allyObservations.slice(-20).map((obs, i) => (
+                <li key={i} className="text-green-400">
+                  <span className="text-green-600 text-xs">[{obs.allyName}]</span>{' '}
+                  <span className="text-slate-300">{obs.subjectName}</span>
+                  {' '}at{' '}
+                  <span className="text-slate-300">{getLocName(obs.location)}</span>
+                  <span className="text-slate-600 ml-1">— Day {obs.day}</span>
+                </li>
+              ))}
             </ul>
           </section>
         )}
@@ -111,7 +103,7 @@ export default function EvidenceBoard({ gameState }) {
         {/* Contradictions */}
         {contradictions.length > 0 && (
           <section>
-            <h3 className="text-red-500 uppercase tracking-wider text-xs mb-2">⚠ Contradictions</h3>
+            <h3 className="text-red-500 uppercase tracking-wider text-xs mb-2">Contradictions</h3>
             <ul className="space-y-1">
               {contradictions.map((c, i) => (
                 <li key={i} className="text-red-400">
@@ -127,17 +119,14 @@ export default function EvidenceBoard({ gameState }) {
           <section>
             <h3 className="text-slate-500 uppercase tracking-wider text-xs mb-2">Movement Logs</h3>
             <ul className="space-y-1">
-              {movementLogs.slice(-15).map((log, i) => {
-                const node = getNodeById(log.location);
-                return (
-                  <li key={i} className="text-slate-400">
-                    <span className="text-slate-300">{getCharName(log.characterId)}</span>
-                    {' '}seen at{' '}
-                    <span className="text-slate-300">{node?.name || log.location}</span>
-                    <span className="text-slate-600 ml-1">— {log.timestamp}</span>
-                  </li>
-                );
-              })}
+              {movementLogs.slice(-15).map((log, i) => (
+                <li key={i} className="text-slate-400">
+                  <span className="text-slate-300">{getCharName(log.characterId)}</span>
+                  {' '}seen at{' '}
+                  <span className="text-slate-300">{getLocName(log.location)}</span>
+                  <span className="text-slate-600 ml-1">— {log.timestamp}</span>
+                </li>
+              ))}
             </ul>
           </section>
         )}
@@ -167,7 +156,7 @@ export default function EvidenceBoard({ gameState }) {
             <h3 className="text-slate-500 uppercase tracking-wider text-xs mb-2">Claimed Facts</h3>
             <ul className="space-y-1">
               {claimedFacts.slice(-20).map((fact, i) => {
-                const locName = LOCATION_DISPLAY[fact.location] || fact.location;
+                const locName = getLocName(fact.location);
                 const tag = fact.verified
                   ? <span className="text-green-600 ml-1">[verified]</span>
                   : <span className="text-slate-600 ml-1">[unverified]</span>;
@@ -202,7 +191,7 @@ export default function EvidenceBoard({ gameState }) {
         {/* Proximity Flags (post-death evidence) */}
         {proximityFlags.length > 0 && (
           <section>
-            <h3 className="text-orange-500 uppercase tracking-wider text-xs mb-2">⚠ Near Victim</h3>
+            <h3 className="text-orange-500 uppercase tracking-wider text-xs mb-2">Near Victim</h3>
             <ul className="space-y-1">
               {proximityFlags.map((f, i) => (
                 <li key={i} className="text-orange-400">
@@ -226,7 +215,7 @@ export default function EvidenceBoard({ gameState }) {
                   <div className="text-slate-500 italic">Q: {log.question}</div>
                   <div className="text-slate-400 mt-0.5 leading-snug">
                     "{log.response.length > 90
-                      ? log.response.slice(0, 90) + '…'
+                      ? log.response.slice(0, 90) + '...'
                       : log.response}"
                   </div>
                   <div className="text-slate-700 text-xs mt-0.5">Day {log.day}</div>

@@ -1,0 +1,131 @@
+[
+  {
+    "step": 0,
+    "command": "new",
+    "args": [],
+    "day": 1,
+    "chunk": 1,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:32:11.020Z"
+  },
+  {
+    "step": 1,
+    "command": "talk",
+    "args": [
+      "old_tomas"
+    ],
+    "day": 1,
+    "chunk": 2,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:32:23.025Z"
+  },
+  {
+    "step": 2,
+    "command": "talk",
+    "args": [
+      "piotr_miller"
+    ],
+    "day": 1,
+    "chunk": 3,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:32:51.120Z"
+  },
+  {
+    "step": 3,
+    "command": "move",
+    "args": [
+      "town_square"
+    ],
+    "day": 1,
+    "chunk": 4,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:32:57.150Z"
+  },
+  {
+    "step": 4,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 5,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:04.481Z"
+  },
+  {
+    "step": 5,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 6,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:04.507Z"
+  },
+  {
+    "step": 6,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 7,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:04.533Z"
+  },
+  {
+    "step": 7,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 8,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:04.557Z"
+  },
+  {
+    "step": 8,
+    "command": "observe",
+    "args": [],
+    "day": 1,
+    "chunk": 8,
+    "phase": "night",
+    "timestamp": "2026-04-01T02:33:04.582Z"
+  },
+  {
+    "step": 9,
+    "command": "night",
+    "args": [
+      "elena_innkeeper"
+    ],
+    "day": 1,
+    "chunk": 8,
+    "phase": "dawn",
+    "timestamp": "2026-04-01T02:33:04.635Z"
+  },
+  {
+    "step": 10,
+    "command": "dawn",
+    "args": [],
+    "day": 2,
+    "chunk": 1,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:04.664Z"
+  },
+  {
+    "step": 11,
+    "command": "move",
+    "args": [
+      "docks"
+    ],
+    "day": 2,
+    "chunk": 2,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:14.467Z"
+  },
+  {
+    "step": 12,
+    "command": "talk",
+    "args": [
+      "mira_merchant"
+    ],
+    "day": 2,
+    "chunk": 3,
+    "phase": "day",
+    "timestamp": "2026-04-01T02:33:19.715Z"
+  }
+]

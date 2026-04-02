@@ -94,9 +94,16 @@ export default function ConversationModal({ gameState, targetId, onClose, onLogC
 
         {/* Header */}
         <div className="flex justify-between items-start mb-5">
-          <div>
-            <h2 className="text-amber-400 text-lg font-semibold">{target.name}</h2>
-            <p className="text-slate-500 text-xs italic mt-0.5">{target.personality}</p>
+          <div className="flex items-center gap-3">
+            <img
+              src={`/images/characters/${target.id}.png`}
+              alt={target.name}
+              className="w-12 h-12 rounded-full border-2 border-amber-600 object-cover flex-shrink-0"
+            />
+            <div>
+              <h2 className="text-amber-400 text-lg font-semibold">{target.name}</h2>
+              <p className="text-slate-500 text-xs italic mt-0.5">{target.personality}</p>
+            </div>
           </div>
           <button
             onClick={onClose}
