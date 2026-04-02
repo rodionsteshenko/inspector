@@ -201,7 +201,7 @@ export default function SetupScreen({ onStartGame, onLoadGame }) {
       className="min-h-screen bg-slate-950 flex flex-col items-center justify-start px-6 py-8 overflow-y-auto">
 
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-serif text-amber-400 mb-2">The Inspector</h1>
+        <h1 className="text-4xl font-serif text-amber-400 mb-2">Constantine the Constable</h1>
         <p className="text-slate-500 text-sm">A village hides its secrets. Two killers walk among them.</p>
       </div>
 

@@ -1,22 +1,22 @@
 // Character data, movement log, knowledge state
 
 export const NPC_DEFINITIONS = [
-  { id: 'brad_barber', name: 'Brad the Barber', personality: 'chatty, knows everyone\'s business, talks too much' },
-  { id: 'elena_innkeeper', name: 'Elena the Innkeeper', personality: 'warm but strategic, trusts slowly, notices everything' },
-  { id: 'father_gregor', name: 'Father Gregor', personality: 'moralistic, suspects everyone, quotes scripture when nervous' },
-  { id: 'mira_merchant', name: 'Mira the Merchant', personality: 'calculating, trades information like goods' },
-  { id: 'old_tomas', name: 'Old Tomas', personality: 'paranoid, jumps to conclusions, rarely wrong' },
-  { id: 'dasha_healer', name: 'Dasha the Healer', personality: 'protective, deflects questions, focuses on others\' safety' },
-  { id: 'lev_dockworker', name: 'Lev the Dockworker', personality: 'quiet, says little, sees more than people think' },
-  { id: 'anya_seamstress', name: 'Anya the Seamstress', personality: 'gossipy, shares too much, hard to know what\'s true' },
-  { id: 'piotr_miller', name: 'Piotr the Miller', personality: 'conflict-averse, smooths things over, hates accusation' },
-  { id: 'nadia_librarian', name: 'Nadia the Librarian', personality: 'analytical, collects facts, slow to commit to a theory' },
-  { id: 'viktor_farmer', name: 'Viktor the Farmer', personality: 'blunt, says exactly what he thinks, sometimes wrong' },
+  { id: 'brad_barber', name: 'Boris the Barber', personality: 'chatty, knows everyone\'s business, talks too much' },
+  { id: 'elena_innkeeper', name: 'Igor the Innkeeper', personality: 'warm but strategic, trusts slowly, notices everything' },
+  { id: 'father_gregor', name: 'Gregor the Gravedigger', personality: 'moralistic, suspects everyone, quotes scripture when nervous' },
+  { id: 'mira_merchant', name: 'Mila the Merchant', personality: 'calculating, trades information like goods' },
+  { id: 'old_tomas', name: 'Tomas the Tailor', personality: 'paranoid, jumps to conclusions, rarely wrong' },
+  { id: 'dasha_healer', name: 'Vera the Vintner', personality: 'protective, deflects questions, focuses on others\' safety' },
+  { id: 'lev_dockworker', name: 'Dmitri the Dockworker', personality: 'quiet, says little, sees more than people think' },
+  { id: 'anya_seamstress', name: 'Sofia the Seamstress', personality: 'gossipy, shares too much, hard to know what\'s true' },
+  { id: 'piotr_miller', name: 'Marek the Miller', personality: 'conflict-averse, smooths things over, hates accusation' },
+  { id: 'nadia_librarian', name: 'Lara the Lamplighter', personality: 'analytical, collects facts, slow to commit to a theory' },
+  { id: 'viktor_farmer', name: 'Fyodor the Fisherman', personality: 'blunt, says exactly what he thinks, sometimes wrong' },
 ];
 
 export const PLAYER_CHARACTER = {
   id: 'player',
-  name: 'The Inspector',
+  name: 'Constantine the Constable',
   personality: 'methodical investigator',
   isPlayer: true,
 };

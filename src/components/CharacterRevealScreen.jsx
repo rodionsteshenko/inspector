@@ -84,10 +84,10 @@ export default function CharacterRevealScreen({ gameState, onBeginDay }) {
           className="p-5 rounded-lg border-2 border-amber-600 bg-amber-950/30 text-center">
           <img
             src="/images/characters/player.png"
-            alt="The Inspector"
+            alt="Constantine the Constable"
             className="w-16 h-16 rounded-full border-2 border-amber-600 object-cover mx-auto mb-3"
           />
-          <div className="text-amber-300 text-xl font-serif mb-1">{player?.name || 'The Inspector'}</div>
+          <div className="text-amber-300 text-xl font-serif mb-1">{player?.name || 'Constantine the Constable'}</div>
           <div className="text-amber-500 uppercase tracking-widest text-xs mb-2">Inspector</div>
           <p className="text-slate-400 text-xs">
             Investigate one person per night. Reveal yourself to build alliances — at your own risk.

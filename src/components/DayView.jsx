@@ -14,7 +14,7 @@ export default function DayView({ gameState, onMove, onObserve, onTalk, onAllian
       <header className="flex-shrink-0 border-b border-slate-800 bg-slate-900 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <h1 className="text-amber-500 font-semibold tracking-wide text-sm uppercase">
-            The Inspector
+            Constantine the Constable
           </h1>
           <div className="text-slate-400 text-sm">
             Day <span className="text-slate-200">{day}</span>
