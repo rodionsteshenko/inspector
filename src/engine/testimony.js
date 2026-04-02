@@ -107,6 +107,21 @@ export function generateTestimony(character, allCharacters, day, rng = Math.rand
     }
   }
 
+  // Mafia: if no chunks were flagged as incriminating (e.g. no mafiaState yet),
+  // still lie about ~40% of location claims to avoid being fully truthful.
+  if (isMafiaChar && incriminatingChunks.size === 0 && movementLog.length > 0) {
+    for (const entry of movementLog) {
+      if (rng() < 0.4) {
+        incriminatingChunks.add(`${entry.day}-${entry.chunk}`);
+      }
+    }
+    // Guarantee at least one lie if there are entries
+    if (incriminatingChunks.size === 0) {
+      const entry = movementLog[0];
+      incriminatingChunks.add(`${entry.day}-${entry.chunk}`);
+    }
+  }
+
   // Build location claims
   const locationClaims = [];
   for (const entry of movementLog) {
@@ -195,6 +210,144 @@ export function generateTestimony(character, allCharacters, day, rng = Math.rand
   }
 
   return { locationClaims, observations, suspicions };
+}
+
+const LOCATION_LABELS = {
+  town_square: 'the town square', church: 'the church', docks: 'the docks',
+  market: 'the market', tavern: 'the tavern', library: 'the library',
+  alley: 'the alley', cellar: 'the cellar',
+};
+
+function loc(id) { return LOCATION_LABELS[id] || id.replace('_', ' '); }
+
+function chunkTime(chunk) {
+  if (chunk <= 2) return 'early morning';
+  if (chunk <= 4) return 'late morning';
+  if (chunk <= 6) return 'afternoon';
+  return 'evening';
+}
+
+/**
+ * Build a deterministic conversation script from testimony data.
+ * Returns an array of { speaker: 'inspector'|characterName, text: string } exchanges.
+ *
+ * The Inspector asks questions; the NPC answers based on their testimony facts.
+ * This serves as both the LLM prompt input (what facts to cover) and the
+ * offline fallback if the LLM is unavailable.
+ *
+ * Innocents: straightforward, share what they saw.
+ * Mafia: omit incriminating info, deflect, maybe fabricate a sighting.
+ */
+export function generateConversationScript(character, gameState) {
+  const { testimony = {}, name, suspicions: npcSuspicions = [] } = character;
+  const { locationClaims = [], observations = [], suspicions: testimonySuspicions = [] } = testimony;
+  const { day0Murder, day } = gameState;
+
+  const exchanges = [];
+
+  // --- Exchange 1: Murder context (Day 1) or general check-in (later days) ---
+  if (day <= 1 && day0Murder) {
+    exchanges.push(
+      { speaker: 'inspector', text: `${name}, I need to ask you about ${day0Murder.victimName}'s death. Where were you when it happened?` },
+    );
+
+    // NPC responds with their earliest location claims
+    const earlyClaims = locationClaims.filter(c => !c.isOmitted && c.day <= 1).slice(0, 2);
+    if (earlyClaims.length > 0) {
+      const claimText = earlyClaims.map(c =>
+        `I was at ${loc(c.claimedLocation)} ${chunkTime(c.chunk)}`
+      ).join(', and ');
+      exchanges.push({ speaker: name, text: `${claimText}. I had nothing to do with what happened to ${day0Murder.victimName}.` });
+    } else {
+      exchanges.push({ speaker: name, text: `I... I was around the village. It's all a blur after hearing about ${day0Murder.victimName}.` });
+    }
+  } else {
+    exchanges.push(
+      { speaker: 'inspector', text: `${name}, tell me about your day. Where have you been?` },
+    );
+
+    const todayClaims = locationClaims.filter(c => !c.isOmitted && c.day === day).slice(0, 3);
+    if (todayClaims.length > 0) {
+      const claimText = todayClaims.map(c =>
+        `${loc(c.claimedLocation)} ${chunkTime(c.chunk)}`
+      ).join(', then ');
+      exchanges.push({ speaker: name, text: `I've been at ${claimText}. Just going about my usual business.` });
+    } else {
+      exchanges.push({ speaker: name, text: `I've been keeping to myself, mostly. Staying close to home.` });
+    }
+  }
+
+  // --- Exchange 2: What did you see? ---
+  const relevantObs = observations.filter(o => o.day === day || (day <= 1 && o.day <= 1));
+  const uniqueObs = [];
+  const seenSubjects = new Set();
+  for (const o of relevantObs) {
+    if (!seenSubjects.has(o.subjectId)) {
+      uniqueObs.push(o);
+      seenSubjects.add(o.subjectId);
+    }
+  }
+  const reportableObs = uniqueObs.slice(0, 3);
+
+  if (reportableObs.length > 0) {
+    exchanges.push(
+      { speaker: 'inspector', text: `Did you notice anyone else while you were out?` },
+    );
+    const obsParts = reportableObs.map(o =>
+      `I saw ${o.subjectName} at ${loc(o.location)}${o.isFabricated ? '' : ` around ${chunkTime(o.chunk)}`}`
+    );
+    exchanges.push({ speaker: name, text: obsParts.join('. ') + '.' });
+  }
+
+  // --- Exchange 3: Suspicions ---
+  const allSuspicions = [...(npcSuspicions || []), ...testimonySuspicions];
+  const suspicionMap = new Map();
+  for (const s of allSuspicions) {
+    if (!suspicionMap.has(s.targetId)) suspicionMap.set(s.targetId, s);
+  }
+  const topSuspicions = [...suspicionMap.values()].slice(0, 2);
+
+  if (topSuspicions.length > 0) {
+    exchanges.push(
+      { speaker: 'inspector', text: `Do you have any idea who might be behind this?` },
+    );
+    const suspTexts = topSuspicions.map(s => `${s.targetName} — ${s.reason}`);
+    exchanges.push({ speaker: name, text: `I don't want to point fingers, but... ${suspTexts.join('. Also, ')}.` });
+  }
+
+  // --- Exchange 4: Day 0 witness info (if applicable) ---
+  if (day0Murder) {
+    const witnessed = character.knowledgeState?.witnessed || [];
+    const sawKiller = witnessed.find(w => w.subjectId === day0Murder.killerId && w.day === 0);
+    const sawVictim = witnessed.find(w => w.subjectId === day0Murder.victimId && w.day === 0);
+
+    if (sawKiller && character.id !== day0Murder.killerId) {
+      const killerChar = gameState.characters.find(c => c.id === day0Murder.killerId);
+      const killerName = killerChar?.name || 'someone';
+      // Mafia won't mention seeing the killer if it's their partner
+      const isMafiaChar = isMafia(character.role);
+      const isMafiaPartner = isMafiaChar && isMafia(killerChar?.role);
+      if (!isMafiaPartner) {
+        exchanges.push(
+          { speaker: 'inspector', text: `Did you see anything unusual near ${loc(day0Murder.victimLocation)}?` },
+          { speaker: name, text: `Actually, yes. I noticed ${killerName} near ${loc(day0Murder.victimLocation)} around that time. I didn't think much of it then, but now...` },
+        );
+      }
+    } else if (sawVictim && character.id !== day0Murder.killerId) {
+      exchanges.push(
+        { speaker: 'inspector', text: `Did you see ${day0Murder.victimName} before it happened?` },
+        { speaker: name, text: `Yes, I saw them at ${loc(day0Murder.victimLocation)}. They seemed fine. I wish I'd stayed longer — maybe I could have...` },
+      );
+    }
+  }
+
+  // --- Closing ---
+  exchanges.push(
+    { speaker: 'inspector', text: `Thank you, ${name}. Stay safe.` },
+    { speaker: name, text: `Be careful out there, Inspector. I don't think we've seen the last of this.` },
+  );
+
+  return exchanges;
 }
 
 /**

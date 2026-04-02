@@ -286,10 +286,15 @@ Style: Anime/Studio Ghibli inspired — warm colors, cel-shaded, European fantas
 
 ---
 
+## Recent Changes (WIP)
+
+- **Mafia retaliates on exposed inspector** — If the player reveals themselves via a failed alliance, `mafiaKnowsInspector` is set and mafia will target the player directly at night (previously they never targeted the player).
+- **Mafia always lies in testimony** — Even without active mafiaState coordination tracking, mafia NPCs now fabricate ~40% of their location claims (with at least one guaranteed lie). This makes deduction more viable from Day 1.
+- **Deterministic conversation scripts** — New `generateConversationScript()` in `testimony.js` builds structured inspector-NPC exchanges from testimony data. Serves as both an LLM prompt guide and an offline fallback when the API is unavailable.
+
 ## Known Issues / Areas for Improvement
 
-1. **Testimony is thin** — NPCs only claim 1-2 locations per day. More claims = more chances for contradictions to surface through cross-referencing.
-2. **Timing ambiguity** — NPCs move within a chunk, so observations and claims at the same day+chunk can create false contradictions for innocents.
-3. **Alliance strategy is unclear** — No breadcrumbs for who's safe to ally with (beyond the Mason hint). Players mostly rely on investigation.
-4. **Late-game days feel empty** — Once conversations are used, remaining chunks are just observing to reach night.
-5. **NPC observations are sparse** — NPCs don't generate enough observations of each other, limiting the cross-referencing that drives deduction.
+1. **Timing ambiguity** — NPCs move within a chunk, so observations and claims at the same day+chunk can create false contradictions for innocents.
+2. **Alliance strategy is unclear** — No breadcrumbs for who's safe to ally with (beyond the Mason hint). Players mostly rely on investigation.
+3. **Late-game days feel empty** — Once conversations are used, remaining chunks are just observing to reach night.
+4. **NPC observations are sparse** — NPCs don't generate enough observations of each other, limiting the cross-referencing that drives deduction.

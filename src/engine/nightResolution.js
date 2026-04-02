@@ -187,8 +187,11 @@ export function mafiaChooseTarget(state) {
   const eligibleTargets = state.characters.filter(c => c.alive && c.role !== ROLES.MAFIA);
   if (eligibleTargets.length === 0) return null;
 
-  // Mafia never targets the player directly — they don't know who the inspector is.
-  // The only way the player dies is by revealing themselves via an alliance with a mafia member.
+  // If mafia knows who the inspector is (e.g. via failed alliance), target the player directly
+  if (state.mafiaKnowsInspector) {
+    const player = state.characters.find(c => c.id === 'player' && c.alive);
+    if (player) return 'player';
+  }
 
   // Use poisoning mechanic when mafiaState is tracked
   if (state.mafiaState) {
