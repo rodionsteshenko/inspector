@@ -32,6 +32,17 @@ export function resolveInspectorInvestigation(characters, targetId) {
   };
 }
 
+// Journalist auto-picks an uninvestigated alive NPC to investigate
+export function journalistAutoInvestigate(state) {
+  const { characters, evidenceBoard } = state;
+  const confirmedIds = new Set(Object.keys(evidenceBoard.confirmedRoles || {}));
+  const candidates = characters.filter(c =>
+    c.alive && c.id !== 'player' && c.role !== ROLES.JOURNALIST && !confirmedIds.has(c.id)
+  );
+  if (candidates.length === 0) return null;
+  return candidates[Math.floor(Math.random() * candidates.length)].id;
+}
+
 // Full night resolution: takes the state, returns updated state + result summary
 export function resolveNight(state) {
   const { nightActions, characters } = state;
@@ -40,9 +51,23 @@ export function resolveNight(state) {
   // Resolve mafia kill
   const killResult = resolveNightKill(mafiaTarget, doctorTarget);
 
-  // Resolve investigation
-  const investigationResult = inspectorTarget
-    ? resolveInspectorInvestigation(characters, inspectorTarget)
+  // Resolve investigation — only allowed when allied with journalist
+  const journalist = characters.find(c => c.role === ROLES.JOURNALIST);
+  const hasJournalistAlly = journalist && journalist.alliedWithInspector && journalist.alive;
+
+  // If journalist is allied, player can investigate (or journalist auto-picks if player didn't choose)
+  let effectiveInspectorTarget = null;
+  if (hasJournalistAlly) {
+    if (inspectorTarget) {
+      effectiveInspectorTarget = inspectorTarget;
+    } else {
+      // Journalist auto-investigates: pick a random alive NPC not yet confirmed
+      effectiveInspectorTarget = journalistAutoInvestigate(state);
+    }
+  }
+
+  const investigationResult = effectiveInspectorTarget
+    ? resolveInspectorInvestigation(characters, effectiveInspectorTarget)
     : null;
 
   // Resolve player eliminate
@@ -77,7 +102,7 @@ export function resolveNight(state) {
   // Update player's verified status if investigation happened
   if (investigationResult) {
     updatedCharacters = updatedCharacters.map(c => {
-      if (c.id === inspectorTarget) {
+      if (c.id === effectiveInspectorTarget) {
         return { ...c, verifiedByInspector: true };
       }
       return c;
@@ -91,7 +116,7 @@ export function resolveNight(state) {
       ...updatedEvidenceBoard,
       confirmedRoles: {
         ...updatedEvidenceBoard.confirmedRoles,
-        [inspectorTarget]: investigationResult.role,
+        [effectiveInspectorTarget]: investigationResult.role,
       },
     };
   }
@@ -143,6 +168,7 @@ export function resolveNight(state) {
   const nightResult = {
     killResult,
     investigationResult,
+    investigationSource: investigationResult ? (inspectorTarget ? 'player' : 'journalist_auto') : null,
     eliminateResult,
     day: state.day,
   };
@@ -155,7 +181,7 @@ export function resolveNight(state) {
     characters: updatedCharacters,
     evidenceBoard: updatedEvidenceBoard,
     lastNightResult: nightResult,
-    investigationsUsed: inspectorTarget ? state.investigationsUsed + 1 : state.investigationsUsed,
+    investigationsUsed: effectiveInspectorTarget ? state.investigationsUsed + 1 : state.investigationsUsed,
     phase: 'dawn',
     playerKilledThisNight: playerKilled,
   };

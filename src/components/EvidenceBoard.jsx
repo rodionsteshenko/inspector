@@ -48,6 +48,33 @@ export default function EvidenceBoard({ gameState }) {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 text-xs">
+        {/* Character Roster — always visible */}
+        <section>
+          <h3 className="text-slate-500 uppercase tracking-wider text-xs mb-2">People</h3>
+          <ul className="space-y-1">
+            {characters.filter(c => c.id !== 'player').map(c => {
+              const knownRole = confirmedRoles[c.id];
+              const isAllied = alliances.some(a => a.characterId === c.id);
+              return (
+                <li key={c.id} className={`flex items-center justify-between ${c.alive ? 'text-slate-300' : 'text-slate-600 line-through'}`}>
+                  <span className="flex items-center gap-1.5">
+                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${c.alive ? 'bg-green-500' : 'bg-slate-600'}`} />
+                    {c.name}
+                    {isAllied && <span className="text-purple-400 text-xs ml-1" title="Allied">★</span>}
+                  </span>
+                  {knownRole ? <RoleBadge role={knownRole} /> : (
+                    c.alive ? <span className="text-slate-600">?</span> : (
+                      deathLog.find(d => d.characterId === c.id)?.revealedRole
+                        ? <RoleBadge role={deathLog.find(d => d.characterId === c.id).revealedRole} />
+                        : <span className="text-slate-700">dead</span>
+                    )
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
         {!hasAny && (
           <p className="text-slate-600 italic">No evidence gathered yet. Move around and observe.</p>
         )}

@@ -228,8 +228,12 @@ describe('Integration: full day cycle', () => {
 // Night resolution
 // ─────────────────────────────────────────────
 describe('Integration: night resolution', () => {
-  test('investigation reveals exact role, updates evidence board', () => {
+  test('investigation reveals exact role, updates evidence board (requires journalist alliance)', () => {
     let s = makeState();
+    // Ally the journalist to unlock investigations
+    s = { ...s, characters: s.characters.map(c =>
+      c.role === 'journalist' ? { ...c, alliedWithInspector: true } : c
+    )};
     while (s.phase === PHASES.DAY) s = advanceChunk(s);
     // Already in NIGHT
 

@@ -102,11 +102,14 @@ describe('resolveNight (full resolution)', () => {
     expect(result.lastNightResult.killResult.type).toBe(RESOLUTION_TYPES.SAVED);
   });
 
-  it('records investigation result privately', () => {
+  it('records investigation result privately (requires journalist alliance)', () => {
     const state = createInitialGameState();
-    const target = state.characters.find(c => c.id !== 'player');
-    // Build night state from the same state to avoid role randomization mismatch
-    let nightState = { ...state, phase: PHASES.NIGHT };
+    // Ally the journalist to unlock investigations
+    const characters = state.characters.map(c =>
+      c.role === 'journalist' ? { ...c, alliedWithInspector: true } : c
+    );
+    const target = characters.find(c => c.id !== 'player');
+    let nightState = { ...state, characters, phase: PHASES.NIGHT };
     nightState = setNightAction(nightState, 'mafiaTarget', null);
     nightState = setNightAction(nightState, 'doctorTarget', null);
     nightState = setNightAction(nightState, 'inspectorTarget', target.id);
@@ -116,11 +119,24 @@ describe('resolveNight (full resolution)', () => {
     expect(result.lastNightResult.investigationResult.role).toBe(target.role);
   });
 
-  it('adds investigation to confirmed roles on evidence board', () => {
+  it('blocks investigation without journalist alliance', () => {
     const state = createInitialGameState();
     const target = state.characters.find(c => c.id !== 'player');
-    // Build night state from the same state to avoid role randomization mismatch
     let nightState = { ...state, phase: PHASES.NIGHT };
+    nightState = setNightAction(nightState, 'mafiaTarget', null);
+    nightState = setNightAction(nightState, 'doctorTarget', null);
+    nightState = setNightAction(nightState, 'inspectorTarget', target.id);
+    const result = resolveNight(nightState);
+    expect(result.lastNightResult.investigationResult).toBeNull();
+  });
+
+  it('adds investigation to confirmed roles on evidence board', () => {
+    const state = createInitialGameState();
+    const characters = state.characters.map(c =>
+      c.role === 'journalist' ? { ...c, alliedWithInspector: true } : c
+    );
+    const target = characters.find(c => c.id !== 'player');
+    let nightState = { ...state, characters, phase: PHASES.NIGHT };
     nightState = setNightAction(nightState, 'mafiaTarget', null);
     nightState = setNightAction(nightState, 'doctorTarget', null);
     nightState = setNightAction(nightState, 'inspectorTarget', target.id);

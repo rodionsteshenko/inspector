@@ -2,7 +2,7 @@ export default function DawnScreen({ gameState, onContinue }) {
   const { day, lastNightResult, characters } = gameState;
   if (!lastNightResult) return null;
 
-  const { killResult, investigationResult, eliminateResult } = lastNightResult;
+  const { killResult, investigationResult, investigationSource, eliminateResult } = lastNightResult;
   const nextDay = day + 1;
 
   const getCharName = (id) => characters.find(c => c.id === id)?.name || id;
@@ -46,10 +46,12 @@ export default function DawnScreen({ gameState, onContinue }) {
           {investigationResult && (
             <div className="p-4 rounded border border-amber-800/50 bg-amber-950/20">
               <div className="text-amber-500 font-semibold mb-1 text-xs uppercase tracking-wider">
-                Your Investigation (private)
+                {investigationSource === 'journalist_auto' ? 'Journalist Investigation' : 'Your Investigation'} (private)
               </div>
               <p className="text-slate-300 text-sm">
-                You investigated{' '}
+                {investigationSource === 'journalist_auto'
+                  ? 'Your journalist ally investigated'
+                  : 'You investigated'}{' '}
                 <span className="text-slate-200 font-medium">{investigationResult.targetName}</span>.
                 {' '}They are{' '}
                 <span className={investigationResult.isMafia ? 'text-red-400 font-semibold' : 'text-green-400 font-semibold'}>
@@ -61,7 +63,11 @@ export default function DawnScreen({ gameState, onContinue }) {
 
           {!investigationResult && (
             <div className="p-4 rounded border border-slate-800 bg-slate-900">
-              <p className="text-slate-600 text-sm italic">You did not investigate anyone last night.</p>
+              <p className="text-slate-600 text-sm italic">
+                {gameState.characters.find(c => c.role === 'journalist')?.alliedWithInspector
+                  ? 'No investigation targets remain.'
+                  : 'Ally with the Journalist to unlock investigations.'}
+              </p>
             </div>
           )}
 
