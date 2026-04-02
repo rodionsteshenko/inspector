@@ -10,7 +10,7 @@ export const NPC_DEFINITIONS = [
   { id: 'lev_dockworker', name: 'Dmitri the Dockworker', personality: 'quiet, says little, sees more than people think' },
   { id: 'anya_seamstress', name: 'Sofia the Seamstress', personality: 'gossipy, shares too much, hard to know what\'s true' },
   { id: 'piotr_miller', name: 'Marek the Miller', personality: 'conflict-averse, smooths things over, hates accusation' },
-  { id: 'nadia_librarian', name: 'Lara the Lamplighter', personality: 'analytical, collects facts, slow to commit to a theory' },
+  { id: 'nadia_librarian', name: 'Lev the Lamplighter', personality: 'analytical, collects facts, slow to commit to a theory' },
   { id: 'viktor_farmer', name: 'Fyodor the Fisherman', personality: 'blunt, says exactly what he thinks, sometimes wrong' },
 ];
 
