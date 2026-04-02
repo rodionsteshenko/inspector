@@ -16,7 +16,7 @@ export const NPC_DEFINITIONS = [
 
 export const PLAYER_CHARACTER = {
   id: 'player',
-  name: 'Constantine the Constable',
+  name: 'Rodion the Registrar',
   personality: 'methodical investigator',
   isPlayer: true,
 };

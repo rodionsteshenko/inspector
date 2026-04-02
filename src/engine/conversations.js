@@ -63,7 +63,7 @@ const CHARACTER_RESPONSES = {
     ],
     night_activity: [
       "I pray for this village every night. Last night I heard something that troubled my spirit. 'Be sober, be vigilant; your adversary prowls.' I took it as a sign.",
-      "There are wolves among us, Inspector. I have felt it. Last night confirmed my fears.",
+      "There are wolves among us, Registrar. I have felt it. Last night confirmed my fears.",
     ],
     suspicions: [
       "Suspicion is a sin — but so is blindness. Scripture says 'by their fruits ye shall know them.' Watch how people act when they think no one is watching.",

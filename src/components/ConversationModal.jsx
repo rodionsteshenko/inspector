@@ -44,7 +44,7 @@ function buildFallbackMonologue(character) {
   }
 
   if (parts.length === 0) {
-    parts.push(`I haven't noticed anything particularly suspicious, Inspector. Things seem quiet from where I stand.`);
+    parts.push(`I haven't noticed anything particularly suspicious, Registrar. Things seem quiet from where I stand.`);
   }
 
   return parts.join(' ');
@@ -127,7 +127,7 @@ export default function ConversationModal({ gameState, targetId, onClose, onLogC
         {/* Alliance warning */}
         {allianceWarning && (
           <div className="mb-4 p-3 rounded border border-purple-700 bg-purple-950/30 text-xs text-purple-300">
-            This will reveal your identity as the Inspector. If they are mafia, the game is over.
+            This will reveal your identity as the Registrar. If they are mafia, the game is over.
           </div>
         )}
 

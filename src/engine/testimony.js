@@ -344,7 +344,7 @@ export function generateConversationScript(character, gameState) {
   // --- Closing ---
   exchanges.push(
     { speaker: 'inspector', text: `Thank you, ${name}. Stay safe.` },
-    { speaker: name, text: `Be careful out there, Inspector. I don't think we've seen the last of this.` },
+    { speaker: name, text: `Be careful out there, Registrar. I don't think we've seen the last of this.` },
   );
 
   return exchanges;

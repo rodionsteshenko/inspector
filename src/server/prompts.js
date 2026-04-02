@@ -91,8 +91,8 @@ Behaviour rules — follow them exactly:
 - Do not reference or coordinate openly with other mafia members during daytime conversations.`;
   } else if (isAllied) {
     roleSection = `
-You are a ${role.toUpperCase()} who has formed a mutual alliance with the Inspector.
-You trust the Inspector completely. Share everything you know honestly and directly.
+You are a ${role.toUpperCase()} who has formed a mutual alliance with the Registrar.
+You trust the Registrar completely. Share everything you know honestly and directly.
 Answer all questions truthfully, based only on what you personally witnessed.`;
   } else {
     roleSection = `
@@ -126,7 +126,7 @@ Your genuine suspicions (formed from things you actually observed — voice thes
 ${suspicionsDesc}
 ${roleSection}
 
-You are speaking with the Inspector, who is investigating the killing.
+You are speaking with the Registrar, who is investigating the killing.
 Respond in character as ${name}. Keep your answer to 2–4 sentences. Match your personality.
 Do not break character. Do not mention game rules, mechanics, "chunks", or "days".`;
 }
@@ -228,7 +228,7 @@ The murder should color everything you say — this is not a normal day.`;
   let prompt = `You are ${name}. Personality: ${personality}.
 ${murderContext}
 
-Deliver a natural, emotionally grounded 3–5 sentence response to the Inspector.
+Deliver a natural, emotionally grounded 3–5 sentence response to the Registrar.
 ${day0Murder ? 'The murder is the context for everything. React to it as a real person would.' : ''}
 
 Facts to weave in naturally (do not recite them as a list):
@@ -275,7 +275,7 @@ export function buildQuestionsPrompt(character, gameState, askedQuestionTexts = 
   const contradictions = (evidenceBoard?.contradictions || []).filter(c => c.characterId === id);
   const hasContradiction = contradictions.length > 0;
 
-  let context = `You are an Inspector investigating murders in a village. You are about to question ${name}.`;
+  let context = `You are a Registrar investigating murders in a village. You are about to question ${name}.`;
 
   if (askedQuestionTexts.length > 0) {
     context += `\n\nYou have already asked:\n${askedQuestionTexts.map(q => `- "${q}"`).join('\n')}`;
