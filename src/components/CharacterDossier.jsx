@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { getNodeById, MAP_NODES } from '../engine/map.js';
 
 // Map chunk number to time-of-day label (assumes 8 chunks/day)
@@ -20,6 +21,26 @@ function Timestamp({ day, chunk, chunksPerDay }) {
 }
 
 export default function CharacterDossier({ character, gameState, onClose }) {
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  async function generateSummary() {
+    setSummaryLoading(true);
+    setSummary(null);
+    try {
+      const res = await fetch('/api/dossier-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ character, gameState }),
+      });
+      const data = await res.json();
+      setSummary(data.summary || 'No summary available.');
+    } catch (e) {
+      setSummary('Failed to generate summary.');
+    } finally {
+      setSummaryLoading(false);
+    }
+  }
   const { evidenceBoard, characters, mapConfig, chunksPerDay = 8 } = gameState;
   const nodes = mapConfig?.nodes || MAP_NODES;
   const { confirmedRoles, movementLogs, contradictions, deathLog, alliances,
@@ -102,6 +123,22 @@ export default function CharacterDossier({ character, gameState, onClose }) {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 text-xs">
+
+        {/* AI Summary */}
+        <section>
+          <button
+            onClick={generateSummary}
+            disabled={summaryLoading}
+            className="w-full px-3 py-2 text-xs rounded border border-amber-800 bg-amber-950/30 hover:bg-amber-900/40 text-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {summaryLoading ? '🔍 Analyzing evidence…' : '🔍 Analyze this suspect'}
+          </button>
+          {summary && (
+            <div className="mt-2 px-3 py-2 rounded border border-slate-700 bg-slate-800/50 text-slate-300 leading-relaxed">
+              {summary}
+            </div>
+          )}
+        </section>
 
         {/* Contradictions — show first if any */}
         {theirContradictions.length > 0 && (

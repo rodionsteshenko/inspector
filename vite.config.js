@@ -19,6 +19,10 @@ function apiPlugin() {
           const { handleTestimony } = await import('./src/server/api.js');
           return handleTestimony(req, res);
         }
+        if (req.url === '/api/dossier-summary') {
+          const { handleDossierSummary } = await import('./src/server/api.js');
+          return handleDossierSummary(req, res);
+        }
         return next();
       });
     },
