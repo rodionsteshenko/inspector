@@ -1,5 +1,7 @@
 // Build dynamic system prompts for character LLM conversations
 
+import { ROLE_MOTIVATIONS } from '../engine/characters.js';
+
 const LOCATION_NAMES = {
   town_square: 'Town Square',
   church:      'Church',
@@ -80,6 +82,7 @@ Act as if this is terrible news. Express appropriate shock or grief. Do not brin
   // Role-specific behaviour instructions
   let roleSection;
   if (isMafia) {
+    const mafiaMotivation = ROLE_MOTIVATIONS.mafia || '';
     roleSection = `
 You are secretly a MAFIA member. You and a partner are responsible for the killings in this village.
 Behaviour rules — follow them exactly:
@@ -88,17 +91,28 @@ Behaviour rules — follow them exactly:
 - You may subtly redirect suspicion toward other villagers, but do it naturally — never obviously.
 - If directly accused, deny calmly and firmly. Do not panic, over-explain, or become defensive.
 - Never contradict your movement log above. Only claim locations you actually visited.
-- Do not reference or coordinate openly with other mafia members during daytime conversations.`;
+- Do not reference or coordinate openly with other mafia members during daytime conversations.
+
+Your hidden motivation:
+${mafiaMotivation}`;
   } else if (isAllied) {
+    const motivation = ROLE_MOTIVATIONS[role] || ROLE_MOTIVATIONS.citizen;
     roleSection = `
 You are a ${role.toUpperCase()} who has formed a mutual alliance with the Registrar.
 You trust the Registrar completely. Share everything you know honestly and directly.
-Answer all questions truthfully, based only on what you personally witnessed.`;
+Answer all questions truthfully, based only on what you personally witnessed.
+
+Your hidden motivation:
+${motivation}`;
   } else {
+    const motivation = ROLE_MOTIVATIONS[role] || ROLE_MOTIVATIONS.citizen;
     roleSection = `
 You are a ${role.toUpperCase()} — an innocent villager who wants the killers found.
 Answer honestly, based only on what you personally witnessed or heard from others.
-You do not know who the mafia members are.`;
+You do not know who the mafia members are.
+
+Your hidden motivation:
+${motivation}`;
   }
 
   // Accumulated suspicions from observed behavior (organic, not fabricated)

@@ -15,8 +15,8 @@ import {
 } from '../characters.js';
 
 describe('NPC_DEFINITIONS', () => {
-  it('has exactly 11 NPC definitions', () => {
-    expect(NPC_DEFINITIONS).toHaveLength(11);
+  it('has 25 NPC definitions', () => {
+    expect(NPC_DEFINITIONS).toHaveLength(25);
   });
 
   it('each NPC has required fields', () => {
@@ -113,7 +113,7 @@ describe('getCharactersAtLocation', () => {
 
 describe('getNPCIds', () => {
   it('returns 11 NPC IDs', () => {
-    expect(getNPCIds()).toHaveLength(11);
+    expect(getNPCIds()).toHaveLength(25);
   });
 });
 

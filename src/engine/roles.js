@@ -103,11 +103,11 @@ export function shuffle(arr, rng = Math.random) {
   return a;
 }
 
-// Assign roles to exactly 11 NPC character IDs
+// Assign roles to NPC character IDs (expects exactly NPC_ROLE_POOL.length IDs)
 // Returns { [characterId]: role }
 export function assignRoles(npcIds, rng = Math.random) {
-  if (npcIds.length !== 11) {
-    throw new Error(`assignRoles expects exactly 11 NPC IDs, got ${npcIds.length}`);
+  if (npcIds.length !== NPC_ROLE_POOL.length) {
+    throw new Error(`assignRoles expects exactly ${NPC_ROLE_POOL.length} NPC IDs, got ${npcIds.length}`);
   }
   const pool = shuffle(NPC_ROLE_POOL, rng);
   const assignments = {};

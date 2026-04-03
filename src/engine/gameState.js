@@ -1,6 +1,6 @@
 // Full game state, day/chunk/phase tracking
 
-import { ROLES, assignRoles, assignRolesFromPool, PLAYER_COUNT_CONFIGS, shuffle } from './roles.js';
+import { ROLES, assignRoles, assignRolesFromPool, PLAYER_COUNT_CONFIGS, NPC_ROLE_POOL, shuffle } from './roles.js';
 import { NPC_DEFINITIONS, PLAYER_CHARACTER, createCharacter, createPlayer, getNPCIds } from './characters.js';
 import { MAP_NODES, buildAdjacencyMap } from './map.js';
 import { MAP_LAYOUTS, DEFAULT_MAP_LAYOUT } from './mapDefinitions.js';
@@ -25,8 +25,10 @@ export const BASE_INVESTIGATIONS_PER_NIGHT = 1;
 export const BASE_CONVERSATIONS_PER_DAY = 3;
 
 export function createInitialGameState(rng = Math.random) {
-  // Assign roles to NPCs
-  const npcIds = getNPCIds();
+  // Pick 11 NPCs randomly from the full roster
+  const allDefs = shuffle([...NPC_DEFINITIONS], rng);
+  const selectedDefs = allDefs.slice(0, NPC_ROLE_POOL.length);
+  const npcIds = selectedDefs.map(d => d.id);
   const roleAssignments = assignRoles(npcIds, rng);
 
   // Assign starting locations randomly
@@ -41,7 +43,7 @@ export function createInitialGameState(rng = Math.random) {
   const player = createPlayer(locationAssignments[PLAYER_CHARACTER.id]);
 
   // Create NPC characters
-  const npcs = NPC_DEFINITIONS.map(def =>
+  const npcs = selectedDefs.map(def =>
     createCharacter(def, roleAssignments[def.id], locationAssignments[def.id])
   );
 
