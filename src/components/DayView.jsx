@@ -1,11 +1,28 @@
+import { useState } from 'react';
 import Map from './Map.jsx';
 import ActionMenu from './ActionMenu.jsx';
 import EvidenceBoard from './EvidenceBoard.jsx';
 import ConversationModal from './ConversationModal.jsx';
+import AllianceConfirmModal from './AllianceConfirmModal.jsx';
+import { chunkToTimeLabel, chunkToLighting } from '../engine/timeOfDay.js';
 
 export default function DayView({ gameState, onMove, onObserve, onTalk, onAlliance, conversationTarget, onCloseConversation, onLogConversation, onSave }) {
+  const [alliancePending, setAlliancePending] = useState(null); // targetId awaiting confirmation
   const { day, chunk, characters } = gameState;
   const chunksPerDay = gameState.chunksPerDay || 8;
+  const lighting = chunkToLighting(chunk || 1, chunksPerDay);
+  const timeLabel = chunkToTimeLabel(chunk || 1, chunksPerDay);
+
+  function handleAllianceRequest(targetId) {
+    setAlliancePending(targetId);
+  }
+  function handleAllianceConfirm(targetId) {
+    setAlliancePending(null);
+    onAlliance(targetId);
+  }
+  function handleAllianceCancel() {
+    setAlliancePending(null);
+  }
   const aliveCount = characters.filter(c => c.alive).length;
 
   return (
@@ -14,12 +31,13 @@ export default function DayView({ gameState, onMove, onObserve, onTalk, onAllian
       <header className="flex-shrink-0 border-b border-slate-800 bg-slate-900 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <h1 className="text-amber-500 font-semibold tracking-wide text-sm uppercase">
-            Rodion the Registrar
+            🕵️ The Inspector
           </h1>
-          <div className="text-slate-400 text-sm">
+          <div className="text-slate-400 text-sm flex items-center gap-2">
             Day <span className="text-slate-200">{day}</span>
-            <span className="mx-2 text-slate-700">·</span>
-            Chunk <span className="text-slate-200">{chunk}</span>/{chunksPerDay}
+            <span className="text-slate-700">·</span>
+            <span className="text-slate-200">{timeLabel}</span>
+            <span className="text-slate-600 text-xs">({lighting.period})</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -57,7 +75,7 @@ export default function DayView({ gameState, onMove, onObserve, onTalk, onAllian
         onMove={onMove}
         onObserve={onObserve}
         onTalk={onTalk}
-        onAlliance={onAlliance}
+        onAlliance={handleAllianceRequest}
       />
 
       {/* Conversation modal overlay */}
@@ -67,7 +85,17 @@ export default function DayView({ gameState, onMove, onObserve, onTalk, onAllian
           targetId={conversationTarget}
           onClose={onCloseConversation}
           onLogConversation={onLogConversation}
-          onAlliance={onAlliance}
+          onAlliance={handleAllianceRequest}
+        />
+      )}
+
+      {/* Alliance confirmation overlay */}
+      {alliancePending && (
+        <AllianceConfirmModal
+          gameState={gameState}
+          targetId={alliancePending}
+          onConfirm={handleAllianceConfirm}
+          onCancel={handleAllianceCancel}
         />
       )}
     </div>

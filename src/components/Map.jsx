@@ -1,4 +1,5 @@
 import { getAdjacentLocations, MAP_NODES, MAP_EDGES, ADJACENCY_MAP } from '../engine/map.js';
+import { chunkToLighting } from '../engine/timeOfDay.js';
 
 const NODE_RADIUS = 28;
 
@@ -12,6 +13,8 @@ export default function Map({ gameState, onMove }) {
 
   const adjacentLocations = getAdjacentLocations(playerLocation, adjacencyMap);
   const canMove = phase === 'day';
+  const chunksPerDay = gameState.chunksPerDay || 8;
+  const lighting = chunkToLighting(gameState.chunk || 1, chunksPerDay);
 
   // Group alive non-player characters by location
   const npcsByLocation = {};
@@ -52,6 +55,14 @@ export default function Map({ gameState, onMove }) {
         })}
       </defs>
       <rect width="100%" height="100%" fill="url(#bgGrad)" />
+
+      {/* Time-of-day lighting overlay — colorizes the whole scene */}
+      <rect
+        width="100%" height="100%"
+        fill={lighting.overlayColor}
+        opacity={lighting.overlayOpacity}
+        style={{ pointerEvents: 'none', mixBlendMode: 'multiply' }}
+      />
 
       {/* Edges / paths between locations */}
       {edges.map(([a, b], i) => {
@@ -123,7 +134,7 @@ export default function Map({ gameState, onMove }) {
               />
             )}
 
-            {/* Location image (clipped to circle) */}
+            {/* Location image (clipped to circle, lit by time of day) */}
             <image
               href={`/images/locations/${node.id}.png`}
               x={pos.x - NODE_RADIUS}
@@ -133,6 +144,7 @@ export default function Map({ gameState, onMove }) {
               clipPath={`url(#clip-${node.id})`}
               preserveAspectRatio="xMidYMid slice"
               opacity={isPlayerHere ? 1 : isClickable ? 0.85 : 0.5}
+              style={{ filter: lighting.filterStyle }}
             />
 
             {/* Node border circle */}

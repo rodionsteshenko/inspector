@@ -5,6 +5,7 @@ A single-player social deduction game. You are an Inspector who has arrived in a
 **Stack:** React + Vite + Tailwind CSS + OpenAI API (`gpt-5.4-mini`)
 **Port:** 5181
 **Tests:** 346 unit tests (Vitest) + E2E (Playwright)
+**Save system:** Auto-saves to localStorage on every state change during active gameplay
 
 ```bash
 npm install
@@ -38,8 +39,8 @@ Setup → Character Reveal → Day 0 Murder → [Day → Night → Dawn] × N �
 - **Move** to adjacent locations on the map
 - **Observe** who's at your current location (logged to evidence board)
 - **Talk** to NPCs (uses a conversation slot). They share testimony: where they claim to have been, who they saw, and who they suspect
-- **Ally** with an NPC (reveals your identity as Inspector — if they're mafia, you lose instantly)
-- **Save** your game at any time
+- **Ally** with an NPC — opens an **Alliance Confirmation screen** first (see below)
+- Game **auto-saves** after every action; manual save button also available
 
 **Night phase:**
 - **Investigate** one person — learn their true role (private, added to evidence board)
@@ -82,6 +83,20 @@ When you talk to multiple NPCs, the game cross-references:
 
 Contradictions appear automatically on the evidence board.
 
+### Time of Day
+The game day runs **6 AM – 10 PM**, divided evenly by `chunksPerDay` (default 8 → 2 hours per chunk). Every log entry, claim, and observation shows a real time window rather than a chunk number. This matters for cross-referencing: if someone claims they were at the church "8–10 AM" but you saw them at the docks at that same time, the contradiction is immediately readable.
+
+The map also shifts lighting across six periods:
+
+| Period | Approx. position | Visual character |
+|--------|-----------------|-----------------|
+| Dawn | First 10% | Warm amber wash, slightly dim |
+| Morning | 10–30% | Clear, bright, faint warmth |
+| Midday | 30–55% | Full sun, neutral |
+| Afternoon | 55–75% | Golden hour tint |
+| Evening | 75–90% | Orange-amber, dimming |
+| Dusk | Last 10% | Deep orange-red, noticeably dark |
+
 ### Evidence Board Sources
 Every entry is tagged by source:
 - **You observed** — ground truth from your own observations
@@ -92,7 +107,16 @@ Every entry is tagged by source:
 - **Proximity** — was near a victim on the day of a kill
 
 ### Alliance Mechanic
-Proposing an alliance is a one-way door:
+Proposing an alliance opens a **confirmation screen** before you commit. The screen shows everything you currently know about that person:
+
+- **Confirmed role** (if you investigated them at night) — green badge for innocent, red for mafia
+- **Movements you personally observed** — locations you saw them at, with real clock times
+- **What they claimed** in conversations — their stated location claims
+- **What others reported** about them — other NPCs' observations of this person
+- **Contradictions flagged** — any mismatches between their claims and observations
+- **Risk warning** if their role is unknown
+
+The alliance itself is a one-way door:
 - **Innocent ally:** Their entire witness history dumps to your evidence board. They report to you in real-time. Role ability unlocks (journalist = +1 conversation/day).
 - **Mafia ally:** Game over. You revealed yourself.
 
@@ -141,7 +165,8 @@ src/
     evidenceExtract.js # Extract evidence facts from LLM conversation responses
     testimony.js       # Pre-generate NPC testimony at day start
     day0.js            # Off-screen murder before player arrives
-    saveLoad.js        # LocalStorage save/load (max 20 saves)
+    saveLoad.js        # LocalStorage save/load (max 20 saves, auto-save on every state change)
+    timeOfDay.js       # Chunk → clock time labels + lighting config per time period
     conversations.js   # Conversation slot tracking helpers
     __tests__/         # Vitest tests (one per module)
 
@@ -155,6 +180,7 @@ src/
     Map.jsx            # SVG map with location images clipped to circles
     ActionMenu.jsx     # Context-sensitive actions with character portraits
     ConversationModal.jsx  # LLM conversation UI with character portrait
+    AllianceConfirmModal.jsx  # Pre-alliance dossier: full breakdown of what you know before committing
     EvidenceBoard.jsx  # Right panel: facts, contradictions, death log
     SetupScreen.jsx    # Game config (map selector, role steppers, saved games)
     CharacterRevealScreen.jsx  # Opening with portraits and day 0 murder reveal
@@ -286,11 +312,23 @@ Style: Anime/Studio Ghibli inspired — warm colors, cel-shaded, European fantas
 
 ---
 
-## Recent Changes (WIP)
+## Recent Changes
+
+- **Renamed to "The Inspector"** — Game title, tab title, and favicon updated. Player character is The Inspector. 🕵️ detective emoji favicon.
+
+- **Alliance Confirmation Screen** (`AllianceConfirmModal.jsx`) — Clicking "Ally" no longer immediately triggers the reveal. Instead it opens a full dossier screen showing everything you know about that person (observed movements, their stated claims, others' reports about them, contradictions, confirmed role if investigated) before you decide. A prominent risk warning appears if their role is unknown.
+
+- **Auto-save** — Game state is written to localStorage after every player action during active gameplay. The setup screen's "Load a Game" panel is now always visible (shows a note when empty). Resume buttons replaced "Load".
+
+- **Real clock times** — Chunks now display as human-readable time windows everywhere (e.g. "6–8 AM", "2–4 PM", "8–10 PM"). The day runs from 6 AM to 10 PM divided evenly by `chunksPerDay`. Implemented in `engine/timeOfDay.js`, used in the header, evidence board, ally intel section, and alliance confirmation screen.
+
+- **Time-of-day lighting on the map** — The SVG map shifts visually as the day progresses through six periods (Dawn, Morning, Midday, Afternoon, Evening, Dusk). Each period applies a color overlay (multiply blend) plus a CSS filter (`brightness`, `sepia`, `saturate`) to location images. Dawn is warm amber and dim; dusk is deep orange-red and dark.
 
 - **Mafia retaliates on exposed inspector** — If the player reveals themselves via a failed alliance, `mafiaKnowsInspector` is set and mafia will target the player directly at night (previously they never targeted the player).
+
 - **Mafia always lies in testimony** — Even without active mafiaState coordination tracking, mafia NPCs now fabricate ~40% of their location claims (with at least one guaranteed lie). This makes deduction more viable from Day 1.
-- **Deterministic conversation scripts** — New `generateConversationScript()` in `testimony.js` builds structured inspector-NPC exchanges from testimony data. Serves as both an LLM prompt guide and an offline fallback when the API is unavailable.
+
+- **Deterministic conversation scripts** — `generateConversationScript()` in `testimony.js` builds structured inspector-NPC exchanges from testimony data. Serves as both an LLM prompt guide and an offline fallback when the API is unavailable.
 
 ## Known Issues / Areas for Improvement
 

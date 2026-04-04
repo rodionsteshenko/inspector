@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   createGameWithSetup,
   advanceChunk,
@@ -28,6 +28,18 @@ function App() {
   const [screen, setScreen] = useState(PRE_GAME.SETUP);
   const [gameState, setGameState] = useState(null);
   const [conversationTarget, setConversationTarget] = useState(null);
+  const prevGameStateRef = useRef(null);
+
+  // Auto-save whenever gameState changes during active gameplay
+  useEffect(() => {
+    if (screen !== 'game' || !gameState) return;
+    if (gameState === prevGameStateRef.current) return;
+    prevGameStateRef.current = gameState;
+    // Don't auto-save on game over (let player start fresh)
+    if (gameState.phase !== PHASES.GAME_OVER) {
+      saveGame(gameState);
+    }
+  }, [gameState, screen]);
 
   // ── Setup / Reveal handlers ─────────────────────────────────────────────
 

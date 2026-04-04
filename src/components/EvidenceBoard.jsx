@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getNodeById, MAP_NODES } from '../engine/map.js';
+import { chunkToTimeLabel } from '../engine/timeOfDay.js';
 import CharacterDossier from './CharacterDossier.jsx';
 
 const ROLE_COLORS = {
@@ -135,15 +136,21 @@ export default function EvidenceBoard({ gameState }) {
           <section>
             <h3 className="text-green-600 uppercase tracking-wider text-xs mb-2">Ally Intel</h3>
             <ul className="space-y-1">
-              {allyObservations.slice(-20).map((obs, i) => (
-                <li key={i} className="text-green-400">
-                  <span className="text-green-600 text-xs">[{obs.allyName}]</span>{' '}
-                  <span className="text-slate-300">{obs.subjectName}</span>
-                  {' '}at{' '}
-                  <span className="text-slate-300">{getLocName(obs.location)}</span>
-                  <span className="text-slate-600 ml-1">— Day {obs.day}</span>
-                </li>
-              ))}
+              {allyObservations.slice(-20).map((obs, i) => {
+                const chunksPerDay = gameState.chunksPerDay || 8;
+                const timeLabel = obs.chunk ? chunkToTimeLabel(obs.chunk, chunksPerDay) : null;
+                return (
+                  <li key={i} className="text-green-400">
+                    <span className="text-green-600 text-xs">[{obs.allyName}]</span>{' '}
+                    <span className="text-slate-300">{obs.subjectName}</span>
+                    {' '}at{' '}
+                    <span className="text-slate-300">{getLocName(obs.location)}</span>
+                    <span className="text-slate-600 ml-1">
+                      — Day {obs.day}{timeLabel ? `, ${timeLabel}` : ''}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}
@@ -167,14 +174,20 @@ export default function EvidenceBoard({ gameState }) {
           <section>
             <h3 className="text-slate-500 uppercase tracking-wider text-xs mb-2">Movement Logs</h3>
             <ul className="space-y-1">
-              {movementLogs.slice(-15).map((log, i) => (
-                <li key={i} className="text-slate-400">
-                  <span className="text-slate-300">{getCharName(log.characterId)}</span>
-                  {' '}seen at{' '}
-                  <span className="text-slate-300">{getLocName(log.location)}</span>
-                  <span className="text-slate-600 ml-1">— {log.timestamp}</span>
-                </li>
-              ))}
+              {movementLogs.slice(-15).map((log, i) => {
+                const chunksPerDay = gameState.chunksPerDay || 8;
+                const timeLabel = log.chunk
+                  ? chunkToTimeLabel(log.chunk, chunksPerDay)
+                  : log.timestamp || '?';
+                return (
+                  <li key={i} className="text-slate-400">
+                    <span className="text-slate-300">{getCharName(log.characterId)}</span>
+                    {' '}seen at{' '}
+                    <span className="text-slate-300">{getLocName(log.location)}</span>
+                    <span className="text-slate-600 ml-1">— Day {log.day}, {timeLabel}</span>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}

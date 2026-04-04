@@ -109,8 +109,6 @@ function SavedGamesPanel({ onLoadGame }) {
   const [saves, setSaves] = useState(() => getSavedGames());
   const [expanded, setExpanded] = useState(false);
 
-  if (saves.length === 0) return null;
-
   const handleDelete = (id) => {
     deleteSave(id);
     setSaves(getSavedGames());
@@ -119,34 +117,48 @@ function SavedGamesPanel({ onLoadGame }) {
   const displaySaves = expanded ? saves : saves.slice(0, 3);
 
   return (
-    <div className="w-full max-w-4xl mt-6">
-      <div className="text-slate-500 text-xs uppercase tracking-widest mb-2">Saved Games</div>
-      <div className="bg-slate-900 rounded-lg border border-slate-800 divide-y divide-slate-800">
-        {displaySaves.map(save => (
-          <div key={save.id} className="flex items-center justify-between px-4 py-3">
-            <div>
-              <div className="text-slate-300 text-sm">{save.name}</div>
-              <div className="text-slate-600 text-xs">
-                {new Date(save.timestamp).toLocaleString()}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                data-testid={`load-save-${save.id}`}
-                onClick={() => onLoadGame(save.id)}
-                className="px-3 py-1 text-xs bg-amber-900/40 hover:bg-amber-800/40 border border-amber-700/50 text-amber-400 rounded transition-colors"
-              >
-                Load
-              </button>
-              <button
-                onClick={() => handleDelete(save.id)}
-                className="px-2 py-1 text-xs bg-slate-800 hover:bg-red-900/30 border border-slate-700 text-slate-500 hover:text-red-400 rounded transition-colors"
-              >
-                ×
-              </button>
-            </div>
+    <div className="w-full max-w-4xl mt-8">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-lg">📂</span>
+        <span className="text-slate-300 text-sm font-medium uppercase tracking-widest">Load a Game</span>
+        {saves.length > 0 && (
+          <span className="text-xs text-slate-600 ml-1">({saves.length} saved)</span>
+        )}
+      </div>
+      <div className="bg-slate-900 rounded-lg border border-slate-700 divide-y divide-slate-800">
+        {saves.length === 0 ? (
+          <div className="px-4 py-5 text-center text-slate-600 text-sm italic">
+            No saved games yet — your progress will be saved automatically.
           </div>
-        ))}
+        ) : (
+          <>
+            {displaySaves.map(save => (
+              <div key={save.id} className="flex items-center justify-between px-4 py-3">
+                <div>
+                  <div className="text-slate-300 text-sm">{save.name}</div>
+                  <div className="text-slate-600 text-xs">
+                    {new Date(save.timestamp).toLocaleString()}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    data-testid={`load-save-${save.id}`}
+                    onClick={() => onLoadGame(save.id)}
+                    className="px-4 py-1.5 text-xs bg-amber-900/40 hover:bg-amber-800/60 border border-amber-700/50 text-amber-400 rounded transition-colors font-medium"
+                  >
+                    Resume
+                  </button>
+                  <button
+                    onClick={() => handleDelete(save.id)}
+                    className="px-2 py-1 text-xs bg-slate-800 hover:bg-red-900/30 border border-slate-700 text-slate-500 hover:text-red-400 rounded transition-colors"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
       {saves.length > 3 && (
         <button
@@ -201,7 +213,8 @@ export default function SetupScreen({ onStartGame, onLoadGame }) {
       className="min-h-screen bg-slate-950 flex flex-col items-center justify-start px-6 py-8 overflow-y-auto">
 
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-serif text-amber-400 mb-2">Rodion the Registrar</h1>
+        <div className="text-5xl mb-3">🕵️</div>
+        <h1 className="text-5xl font-serif text-amber-400 mb-2 tracking-wide">The Inspector</h1>
         <p className="text-slate-500 text-sm">A village hides its secrets. Two killers walk among them.</p>
       </div>
 
